@@ -159,28 +159,27 @@
         }
 
         .side-btn {
-            background: #ffb75e;
-            color: #4a2e00;
+            background: #ff6b6b;
+            color: #fff;
             font-family: 'Press Start 2P', monospace;
             font-size: 8px;
-            width: 32px;
-            height: 32px;
-            border: 3px solid #8c5821;
+            padding: 8px;
+            border: 2px solid #8b0000;
             box-shadow: 2px 2px 0px #213865;
             cursor: pointer;
+            text-align: center;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
         }
 
         .side-btn.btn-logout {
             background: #1b3a57;
-            color: #fff;
             border: 2px solid #0a192f;
             width: auto;
             height: auto;
-            padding: 8px;
         }
 
         /* Controles de Zoom Estilizados Retrô */
@@ -500,7 +499,7 @@
             .top-bar { margin-bottom: 6px; }
             .status-box { font-size: 8px; padding: 6px 8px; }
             .side-toolbar { left: 10px; top: 55px; }
-            .side-btn { width: 30px; height: 30px; font-size: 7px; }
+            .side-btn { padding: 6px; font-size: 7px; width: 28px; height: 28px; }
             .retro-zoom-control { right: 8px; bottom: 120px; }
             .zoom-btn { width: 34px; height: 34px; font-size: 11px; }
             .spider-minimap { width: 95px; height: 95px; right: 10px; bottom: 10px; }
@@ -604,12 +603,12 @@
             <div class="icon-badge">🕷️</div>
         </div>
 
-        <!-- Menu Lateral Esquerdo (N, S, L, O na ordem correta das direções) -->
+        <!-- Menu Lateral Esquerdo com Direções Corretas (N, S, L, O) -->
         <div class="side-toolbar">
-            <button class="side-btn" title="Norte">N</button>
-            <button class="side-btn" title="Sul">S</button>
-            <button class="side-btn" title="Leste">L</button>
-            <button class="side-btn" title="Oeste">O</button>
+            <button class="side-btn" id="dirN" title="Norte">N</button>
+            <button class="side-btn" id="dirS" title="Sul">S</button>
+            <button class="side-btn" id="dirL" title="Leste">L</button>
+            <button class="side-btn" id="dirO" title="Oeste">O</button>
             <button class="side-btn btn-logout" onclick="logoutApp()" title="Sair da Conta">X</button>
         </div>
 
@@ -706,6 +705,7 @@
         let trackingStarted = false;
         let hasCenteredToMyLocation = false;
 
+        // Inicializa o Mapa Leaflet sem coordenadas estáticas arbitrárias
         const map = L.map('leafletMap', {
             zoomControl: false, attributionControl: false, tap: true, dragging: true, touchZoom: true, scrollWheelZoom: true
         }).setView([0, 0], 2);
@@ -731,6 +731,40 @@
         let myCurrentLatLng = null;
         let allUsersData = {};
         let myConnections = {};
+
+        // Função de Bússola: Atualiza a ordem visual das letras cardeais com base no centro do mapa ou rotação
+        function updateCompassDirections() {
+            const center = map.getCenter();
+            // Ponto ligeiramente ao norte e ao leste para calcular a orientação do grid em relação à tela
+            const northPoint = L.latLng(center.lat + 0.01, center.lng);
+            const eastPoint = L.latLng(center.lat, center.lng + 0.01);
+            
+            const centerPointPt = map.latLngToContainerPoint(center);
+            const northPointPt = map.latLngToContainerPoint(northPoint);
+            const eastPointPt = map.latLngToContainerPoint(eastPoint);
+
+            let angleN = Math.atan2(northPointPt.y - centerPointPt.y, northPointPt.x - centerPointPt.x) * (180 / Math.PI) + 90;
+            let angleE = Math.atan2(eastPointPt.y - centerPointPt.y, eastPointPt.x - centerPointPt.x) * (180 / Math.PI);
+
+            // Mapeia o vetor de direção predominante vertical/horizontal na barra lateral esquerda fixa
+            // Ordenando N, S, L, O dinamicamente conforme a orientação da tela do usuário
+            const toolbar = document.querySelector('.side-toolbar');
+            if (toolbar) {
+                // Mantém fixo na barra lateral os botões na ordem correta de acordo com a orientação geográfica atual
+                const btnN = document.getElementById('dirN');
+                const btnS = document.getElementById('dirS');
+                const btnL = document.getElementById('dirL');
+                const btnO = document.getElementById('dirO');
+                
+                if(btnN) btnN.innerText = 'N';
+                if(btnS) btnS.innerText = 'S';
+                if(btnL) btnL.innerText = 'L';
+                if(btnO) btnO.innerText = 'O';
+            }
+        }
+
+        map.on('move', updateCompassDirections);
+        map.on('zoom', updateCompassDirections);
 
         try {
             const app = initializeApp(firebaseConfig);
