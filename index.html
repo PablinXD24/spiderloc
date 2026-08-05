@@ -103,8 +103,6 @@
             height: 100%;
             background: #0b192c;
             z-index: 1;
-            transform-origin: center center;
-            transition: transform 0.05s linear;
         }
 
         .leaflet-tile {
@@ -208,7 +206,7 @@
             box-shadow: 1px 1px 0px #213865;
         }
 
-        /* Mini-mapa Teia de Aranha Poligonal (Atuando como Bússola Exata) */
+        /* Mini-mapa Teia de Aranha Poligonal */
         .spider-minimap {
             position: absolute;
             right: 16px;
@@ -239,32 +237,7 @@
             top: 0;
             left: 0;
             pointer-events: none;
-            transition: transform 0.05s linear;
         }
-
-        .compass-letters-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            transition: transform 0.05s linear;
-        }
-
-        .compass-label {
-            position: absolute;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 8px;
-            font-weight: bold;
-            color: #ffb75e;
-            text-shadow: 0 0 3px #000;
-        }
-
-        .compass-label.north { top: 4px; left: 50%; transform: translateX(-50%); color: #ff4757; }
-        .compass-label.south { bottom: 4px; left: 50%; transform: translateX(-50%); }
-        .compass-label.east { right: 6px; top: 50%; transform: translateY(-50%); }
-        .compass-label.west { left: 6px; top: 50%; transform: translateY(-50%); }
 
         .spider-dot {
             position: absolute;
@@ -369,6 +342,7 @@
         .pill-outline:active { transform: none !important; box-shadow: none !important; }
         .pill-orange { --color: #3b2300; --bg-color: #f39c12; color: var(--color); background-color: var(--bg-color); }
         
+        /* 3D VIEW ATIVO (Desativado o visual desativado conforme solicitado) */
         .pill-disabled { --color: #ffffff; --bg-color: #2980b9; color: var(--color); background-color: var(--bg-color); cursor: pointer; box-shadow: 0px 3px #1a2327, 0px -3px #1a2327, 3px 0px #1a2327, -3px 0px #1a2327, 1px 2px #1a2327, -1px 2px #1a2327, 1px -2px #1a2327, -1px -2px #1a2327, 2px 1px #1a2327, -2px 1px #1a2327, 2px -1px #1a2327, -2px -1px #1a2327; }
         .pill-disabled:active { transform: translateY(3px); }
 
@@ -403,7 +377,7 @@
 
         #authScreen {
             z-index: 3000;
-            display: none;
+            display: none; /* Ocultado por padrão para evitar piscar tela de login ao atualizar com sessão ativa */
         }
 
         #nametagSetupModal {
@@ -642,9 +616,9 @@
                 <button class="zoom-btn" onclick="zoomOut()">-</button>
             </div>
 
-            <!-- Mini-mapa Teia de Aranha / Bússola Direcional Rotativa -->
-            <div class="spider-minimap" id="spiderMinimap" onclick="centerOnMe()" title="Radar Bússola Giroscópica">
-                <svg class="spider-web-svg" id="spiderWebSvg" viewBox="0 0 100 100">
+            <!-- Mini-mapa Teia de Aranha -->
+            <div class="spider-minimap" id="spiderMinimap" onclick="centerOnMe()" title="Radar Teia de Aranha">
+                <svg class="spider-web-svg" viewBox="0 0 100 100">
                     <line x1="50" y1="50" x2="50" y2="0" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="50" y2="100" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="0" y2="50" stroke="#1b3a57" stroke-width="0.8"/>
@@ -658,12 +632,6 @@
                     <polygon points="50,15 78,22 85,50 78,78 50,85 22,78 15,50 22,22" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
                     <polygon points="50,2 90,10 98,50 90,90 50,98 10,90 2,50 10,10" fill="none" stroke="#21486c" stroke-width="1.2"/>
                 </svg>
-                <div class="compass-letters-container" id="compassLettersContainer">
-                    <span class="compass-label north">N</span>
-                    <span class="compass-label south">S</span>
-                    <span class="compass-label east">L</span>
-                    <span class="compass-label west">O</span>
-                </div>
                 <div class="spider-dot self-dot" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
             </div>
         </div>
@@ -757,36 +725,6 @@
         let allUsersData = {};
         let myConnections = {};
 
-        // Sincronização da rotação do mapa com a bússola estilo giroscópio (o mapa inteiro gira mantendo as letras direcionadas corretamente)
-        function updateMapOrientation(heading) {
-            const leafletPane = document.querySelector('#leafletMap .leaflet-map-pane');
-            const compassLetters = document.getElementById('compassLettersContainer');
-            const spiderSvg = document.getElementById('spiderWebSvg');
-            
-            if (leafletPane) {
-                leafletPane.style.transform = `rotate(${heading}deg)`;
-            }
-            if (compassLetters) {
-                compassLetters.style.transform = `rotate(${-heading}deg)`;
-            }
-            if (spiderSvg) {
-                spiderSvg.style.transform = `rotate(${-heading}deg)`;
-            }
-        }
-
-        // Tenta capturar orientação por DeviceOrientationEvent se disponível no dispositivo do usuário
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', (event) => {
-                let compassHeading = event.alpha;
-                if (event.webkitCompassHeading !== undefined) {
-                    compassHeading = event.webkitCompassHeading; // iOS Safari
-                }
-                if (compassHeading !== null && !isNaN(compassHeading)) {
-                    updateMapOrientation(compassHeading);
-                }
-            }, true);
-        }
-
         try {
             const app = initializeApp(firebaseConfig);
             db = getDatabase(app);
@@ -820,6 +758,7 @@
                     });
 
                 } else {
+                    // Só exibe a tela de login se realmente não houver usuário autenticado logado
                     document.getElementById('authScreen').style.display = 'flex';
                     document.getElementById('nametagSetupModal').style.display = 'none';
                     document.getElementById('statusMessage').innerText = 'SISTEMA BLOQUEADO';
@@ -997,15 +936,10 @@
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
-                        const heading = position.coords.heading;
-                        
                         myCurrentLatLng = [lat, lng];
                         gpsStatus.innerText = `GPS: ATIVO`;
 
-                        if (heading !== null && !isNaN(heading)) {
-                            updateMapOrientation(heading);
-                        }
-
+                        // Centraliza imediatamente onde o usuário está na primeira leitura do GPS
                         if (!hasCenteredToMyLocation) {
                             map.setView([lat, lng], 16, { animate: false });
                             hasCenteredToMyLocation = true;
@@ -1225,6 +1159,7 @@
             showRetroModal(`Perfil de Rastreamento ${profNum} (${profileNames[profNum] || 'Padrão'}) ativado!`); 
         }
         
+        // Função de 3D View com alerta ajustado (removido status de inativo restrito)
         function toggleView3D() { 
             showRetroModal("Módulo 3D View acionado. Renderização isométrica pronta."); 
         }
