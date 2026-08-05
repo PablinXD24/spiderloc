@@ -147,6 +147,38 @@
             font-family: 'Share Tech Mono', monospace;
         }
 
+        /* Indicador de Bússola no Mapa (N, S, L, O seguindo a rotação do usuário) */
+        .map-compass-indicator {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 45px;
+            height: 45px;
+            background: rgba(11, 25, 44, 0.85);
+            border: 2px solid #ffb75e;
+            border-radius: 50%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 8px rgba(0,0,0,0.6);
+            pointer-events: none;
+        }
+
+        .compass-rose {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .compass-n { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); color: #ff4757; }
+        .compass-s { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); color: #d1f7ff; }
+        .compass-l { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); color: #d1f7ff; }
+        .compass-o { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); color: #d1f7ff; }
+
         /* Barra Lateral de Comandos (Esquerda) */
         .side-toolbar {
             position: absolute;
@@ -206,7 +238,7 @@
             box-shadow: 1px 1px 0px #213865;
         }
 
-        /* Mini-mapa Teia de Aranha Poligonal com Bússola Dinâmica */
+        /* Mini-mapa Teia de Aranha Poligonal */
         .spider-minimap {
             position: absolute;
             right: 16px;
@@ -237,7 +269,6 @@
             top: 0;
             left: 0;
             pointer-events: none;
-            transition: transform 0.1s ease-out;
         }
 
         .spider-dot {
@@ -610,16 +641,25 @@
             <div class="gps-status" id="gpsStatus">GPS: Aguardando...</div>
             <div id="leafletMap"></div>
 
+            <!-- Indicador de Bússola no Mapa (Gira com o usuário) -->
+            <div class="map-compass-indicator">
+                <div class="compass-rose" id="compassRose">
+                    <span class="compass-n">N</span>
+                    <span class="compass-s">S</span>
+                    <span class="compass-l">L</span>
+                    <span class="compass-o">O</span>
+                </div>
+            </div>
+
             <!-- Controles de Zoom Personalizados Retrô -->
             <div class="retro-zoom-control">
                 <button class="zoom-btn" onclick="zoomIn()">+</button>
                 <button class="zoom-btn" onclick="zoomOut()">-</button>
             </div>
 
-            <!-- Mini-mapa Teia de Aranha com Letras Direcionais Fixadas Corretamente -->
+            <!-- Mini-mapa Teia de Aranha -->
             <div class="spider-minimap" id="spiderMinimap" onclick="centerOnMe()" title="Radar Teia de Aranha">
-                <svg class="spider-web-svg" id="spiderWebSvg" viewBox="0 0 100 100">
-                    <!-- Linhas da teia -->
+                <svg class="spider-web-svg" viewBox="0 0 100 100">
                     <line x1="50" y1="50" x2="50" y2="0" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="50" y2="100" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="0" y2="50" stroke="#1b3a57" stroke-width="0.8"/>
@@ -632,12 +672,6 @@
                     <polygon points="50,28 68,32 72,50 68,68 50,72 32,68 28,50 32,32" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
                     <polygon points="50,15 78,22 85,50 78,78 50,85 22,78 15,50 22,22" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
                     <polygon points="50,2 90,10 98,50 90,90 50,98 10,90 2,50 10,10" fill="none" stroke="#21486c" stroke-width="1.2"/>
-
-                    <!-- Letras das Direções (N, S, L, O) fixas no SVG para rotacionarem perfeitamente com a bússola -->
-                    <text x="50" y="8" fill="#ffb75e" font-size="7" font-family="'Press Start 2P', monospace" text-anchor="middle">N</text>
-                    <text x="50" y="96" fill="#ffb75e" font-size="7" font-family="'Press Start 2P', monospace" text-anchor="middle">S</text>
-                    <text x="4" y="52.5" fill="#ffb75e" font-size="7" font-family="'Press Start 2P', monospace" text-anchor="start">O</text>
-                    <text x="96" y="52.5" fill="#ffb75e" font-size="7" font-family="'Press Start 2P', monospace" text-anchor="end">L</text>
                 </svg>
                 <div class="spider-dot self-dot" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
             </div>
@@ -705,7 +739,7 @@
         let trackingStarted = false;
         let hasCenteredToMyLocation = false;
 
-        // Inicializa o Mapa Leaflet sem coordenadas estáticas arbitrárias
+        // Inicializa o Mapa Leaflet
         const map = L.map('leafletMap', {
             zoomControl: false, attributionControl: false, tap: true, dragging: true, touchZoom: true, scrollWheelZoom: true
         }).setView([0, 0], 2);
@@ -732,32 +766,13 @@
         let allUsersData = {};
         let myConnections = {};
 
-        // Rastreamento de orientação (bússola) do dispositivo ou movimento do mapa
-        let currentHeading = 0;
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', (event) => {
-                let heading = event.alpha;
-                if (event.webkitCompassHeading !== undefined) {
-                    heading = event.webkitCompassHeading;
-                }
-                if (heading !== null && !isNaN(heading)) {
-                    currentHeading = heading;
-                    updateCompassRotation();
-                }
-            }, true);
-        }
-
-        // Caso o dispositivo não suporte giroscópio, acompanha a rotação de rota/arraste do mapa se aplicável
-        map.on('rotate', () => {
-            currentHeading = map.getBearing ? map.getBearing() : 0;
-            updateCompassRotation();
-        });
-
-        function updateCompassRotation() {
-            const svgElement = document.getElementById('spiderWebSvg');
-            if (svgElement) {
-                // Rotaciona a bússola mantendo o norte voltado para a direção correta do usuário
-                svgElement.style.transform = `rotate(${-currentHeading}deg)`;
+        // Sistema de Bússola orientada pelo usuário
+        function updateCompassRotation(heading) {
+            const compassRose = document.getElementById('compassRose');
+            if (compassRose && heading !== null && !isNaN(heading)) {
+                // Rotaciona a rosa dos ventos no sentido oposto ao movimento/heading do usuário para manter o Norte real correto no topo,
+                // ou rotaciona conforme a direção para o comportamento de bússola estilo mapa de navegação.
+                compassRose.style.transform = `rotate(${-heading}deg)`;
             }
         }
 
@@ -767,7 +782,6 @@
             auth = getAuth(app);
             const googleProvider = new GoogleAuthProvider();
 
-            // Monitorar Status de Autenticação com persistência imediata
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     currentHeroUid = user.uid;
@@ -971,17 +985,19 @@
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
+                        const heading = position.coords.heading;
+                        
                         myCurrentLatLng = [lat, lng];
                         gpsStatus.innerText = `GPS: ATIVO`;
+
+                        // Atualiza orientação da bússola com base no movimento do usuário se disponível
+                        if (heading !== null && heading !== undefined) {
+                            updateCompassRotation(heading);
+                        }
 
                         if (!hasCenteredToMyLocation) {
                             map.setView([lat, lng], 16, { animate: false });
                             hasCenteredToMyLocation = true;
-                        }
-
-                        if (position.coords.heading !== null && !isNaN(position.coords.heading)) {
-                            currentHeading = position.coords.heading;
-                            updateCompassRotation();
                         }
 
                         if (db) {
@@ -1002,6 +1018,19 @@
                     },
                     { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
                 );
+
+                // Suporte adicional para dispositivos móveis com orientação de bússola via DeviceOrientationEvent
+                if (window.DeviceOrientationEvent) {
+                    window.addEventListener('deviceorientation', (event) => {
+                        let compassHeading = event.alpha;
+                        if (event.webkitCompassHeading) {
+                            compassHeading = event.webkitCompassHeading; // Específico para iOS Safari
+                        }
+                        if (compassHeading !== null && compassHeading !== undefined) {
+                            updateCompassRotation(compassHeading);
+                        }
+                    }, true);
+                }
             }
         }
 
