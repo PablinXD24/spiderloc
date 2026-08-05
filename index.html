@@ -307,7 +307,6 @@
             flex-grow: 1;
         }
 
-        /* ESTILO DE PIXEL COM CANTOS ARREDONDADOS/PIXEL SOZINHO NOS CANTOS */
         .pill-btn {
             font-family: 'Press Start 2P', monospace;
             font-size: 7px;
@@ -342,8 +341,10 @@
         .pill-outline { --color: transparent; --bg-color: transparent; color: var(--color); background-color: var(--bg-color); box-shadow: none !important; cursor: default; border: 0 !important; }
         .pill-outline:active { transform: none !important; box-shadow: none !important; }
         .pill-orange { --color: #3b2300; --bg-color: #f39c12; color: var(--color); background-color: var(--bg-color); }
-        .pill-disabled { --color: #b0bec5; --bg-color: #4f6475; color: var(--color); background-color: var(--bg-color); cursor: not-allowed; box-shadow: 0px 3px #1a2327, 0px -3px #1a2327, 3px 0px #1a2327, -3px 0px #1a2327, 1px 2px #1a2327, -1px 2px #1a2327, 1px -2px #1a2327, -1px -2px #1a2327, 2px 1px #1a2327, -2px 1px #1a2327, 2px -1px #1a2327, -2px -1px #1a2327; }
-        .pill-disabled:active { transform: none; box-shadow: 0px 3px #1a2327, 0px -3px #1a2327, 3px 0px #1a2327, -3px 0px #1a2327, 1px 2px #1a2327, -1px 2px #1a2327, 1px -2px #1a2327, -1px -2px #1a2327, 2px 1px #1a2327, -2px 1px #1a2327, 2px -1px #1a2327, -2px -1px #1a2327; }
+        
+        /* 3D VIEW ATIVO (Desativado o visual desativado conforme solicitado) */
+        .pill-disabled { --color: #ffffff; --bg-color: #2980b9; color: var(--color); background-color: var(--bg-color); cursor: pointer; box-shadow: 0px 3px #1a2327, 0px -3px #1a2327, 3px 0px #1a2327, -3px 0px #1a2327, 1px 2px #1a2327, -1px 2px #1a2327, 1px -2px #1a2327, -1px -2px #1a2327, 2px 1px #1a2327, -2px 1px #1a2327, 2px -1px #1a2327, -2px -1px #1a2327; }
+        .pill-disabled:active { transform: translateY(3px); }
 
         /* Mensagens de status do GPS */
         .gps-status {
@@ -376,7 +377,7 @@
 
         #authScreen {
             z-index: 3000;
-            display: flex;
+            display: none; /* Ocultado por padrão para evitar piscar tela de login ao atualizar com sessão ativa */
         }
 
         #nametagSetupModal {
@@ -453,7 +454,6 @@
             border-color: #0d47a1;
         }
 
-        /* Estilo da Lista de Convites e Conexões no Perfil */
         .profile-section-title {
             font-family: 'Press Start 2P', monospace;
             font-size: 8px;
@@ -502,8 +502,7 @@
             .profile-btn { width: 45px; height: 60px; font-size: 5px; }
             .profile-btn .profile-icon { font-size: 14px !important; }
             .buttons-grid { gap: 4px; }
-            .pill-btn { font-size: 5px; padding: 6px 5px; margin: 2px; box-shadow: 0px 2px black, 0px -2px black, 2px 0px black, -2px 0px black, 1px 1px black, -1px 1px black, 1px -1px black, -1px -1px black, 0px 4px #00000038, 2px 2px #00000038, -2px 2px #00000038, inset 0px 2px #ffffff36; }
-            .pill-btn:active { transform: translateY(2px); box-shadow: 0px 2px black, 0px -2px black, 2px 0px black, -2px 0px black, 1px 1px black, -1px 1px black, 1px -1px black, -1px -1px black, inset 0px 2px #ffffff36; }
+            .pill-btn { font-size: 5px; padding: 6px 5px; margin: 2px; }
             .gps-status { font-size: 8px; top: 6px; right: 6px; }
         }
     </style>
@@ -523,7 +522,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE ESCOLHA DE NAMETAG (PRIMEIRO LOGIN / CONFIGURAÇÃO) -->
+    <!-- MODAL DE ESCOLHA DE NAMETAG -->
     <div id="nametagSetupModal">
         <div class="retro-modal-box">
             <div class="retro-modal-title">ESCOLHA SUA NAMETAG</div>
@@ -561,7 +560,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE INFORMAÇÕES CONFIDENCIAIS (Antigo Prof 1) -->
+    <!-- MODAL DE INFORMAÇÕES CONFIDENCIAIS -->
     <div id="confidentialModal">
         <div class="retro-modal-box">
             <div class="retro-modal-title">INF CONFIDENCIAIS</div>
@@ -574,7 +573,7 @@
                 <label style="font-size:9px; color:#ffb75e;">IDADE / CLASSE:</label>
                 <input type="text" id="confAgeClass" class="retro-input" placeholder="Ex: 25 Anos / Tático">
 
-                <label style="font-size:9px; color:#ffb75e;">HABILIDADES /ESPECIALIDADE:</label>
+                <label style="font-size:9px; color:#ffb75e;">HABILIDADES / ESPECIALIDADE:</label>
                 <input type="text" id="confSkills" class="retro-input" placeholder="Ex: Engenharia de Software, Pilotagem">
 
                 <label style="font-size:9px; color:#ffb75e;">CONTATO DE EMERGÊNCIA:</label>
@@ -594,7 +593,7 @@
         <!-- Barra Superior -->
         <div class="top-bar">
             <div class="icon-badge">🌐</div>
-            <div class="status-box" id="statusMessage">SISTEMA BLOQUEADO - AGUARDANDO LOGIN</div>
+            <div class="status-box" id="statusMessage">CARREGANDO SISTEMA...</div>
             <div class="icon-badge">🕷️</div>
         </div>
 
@@ -633,15 +632,13 @@
                     <polygon points="50,15 78,22 85,50 78,78 50,85 22,78 15,50 22,22" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
                     <polygon points="50,2 90,10 98,50 90,90 50,98 10,90 2,50 10,10" fill="none" stroke="#21486c" stroke-width="1.2"/>
                 </svg>
-                <!-- Marcadores dinâmicos no radar -->
                 <div class="spider-dot self-dot" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
             </div>
         </div>
 
-        <!-- Painel Inferior com Botão de Perfil à Esquerda e Botões à Direita -->
+        <!-- Painel Inferior -->
         <div class="bottom-panel">
             <div class="avatar-section">
-                <!-- Botão de Perfil mantido exatamente no modo onde está[cite: 1] -->
                 <button class="profile-btn" onclick="openProfileModal()">
                     <span class="profile-icon" style="font-size: 20px; margin-bottom: 4px;">👤</span>
                     PERFIL
@@ -649,18 +646,16 @@
             </div>
 
             <div class="buttons-grid">
-                <!-- Linha 1 -->
                 <button class="pill-btn pill-green-dark" onclick="setAlias('A.1')">A.1</button>
-                <!-- Botão alterado de "PROF 1" para "INF CONFIDENCIAIS" com funcionalidade personalizada -->
                 <button class="pill-btn pill-green" onclick="openConfidentialModal()">INF CONF</button>
                 <button class="pill-btn pill-orange" onclick="setTerrainMode()">TERRAIN</button>
                 <button class="pill-btn pill-orange" onclick="openChat()">CHAT</button>
-                <!-- Linha 2 -->
+                
                 <button class="pill-btn pill-red" onclick="setAlias('A.2')">A.2</button>
                 <button class="pill-btn pill-green" onclick="setProf(2)">PROF 2</button>
                 <button class="pill-btn pill-disabled" onclick="toggleView3D()">3D VIEW</button>
                 <button class="pill-btn pill-orange" onclick="openArchive()">ARCHIVE</button>
-                <!-- Linha 3 -->
+                
                 <button class="pill-btn pill-outline"></button>
                 <button class="pill-btn pill-green" onclick="setProf(3)">PROF 3</button>
                 <button class="pill-btn pill-orange" onclick="centerOnMe()">CENTER LOC.</button>
@@ -669,7 +664,7 @@
         </div>
     </div>
 
-    <!-- Modal de Notificação Retrô integrado à interface -->
+    <!-- Modal de Notificação Retrô -->
     <div id="retroNotificationModal">
         <div class="retro-modal-box">
             <div class="retro-modal-title">TERMINAL NOTIFICAÇÃO</div>
@@ -681,15 +676,12 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <!-- Firebase SDKs e Lógica do Mapa Funcional -->
+    <!-- Firebase SDKs e Lógica -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // ==========================================
-        // CONFIGURAÇÃO DO FIREBASE FORNECIDA
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCvTRvsTKEBjYiKxIKqDcTfjRFM_tzxYgw",
             authDomain: "spider-track-6c9fd.firebaseapp.com",
@@ -704,11 +696,12 @@
         let currentHeroName = '';
         let currentHeroNametag = '';
         let trackingStarted = false;
+        let hasCenteredToMyLocation = false;
 
-        // Inicializa o Mapa Leaflet com coordenadas padrão
+        // Inicializa o Mapa Leaflet sem coordenadas estáticas arbitrárias
         const map = L.map('leafletMap', {
             zoomControl: false, attributionControl: false, tap: true, dragging: true, touchZoom: true, scrollWheelZoom: true
-        }).setView([-23.55052, -46.633308], 14);
+        }).setView([0, 0], 2);
 
         window.zoomIn = () => map.zoomIn();
         window.zoomOut = () => map.zoomOut();
@@ -732,20 +725,18 @@
         let allUsersData = {};
         let myConnections = {};
 
-        // INICIALIZAÇÃO FIREBASE E AUTENTICAÇÃO
         try {
             const app = initializeApp(firebaseConfig);
             db = getDatabase(app);
             auth = getAuth(app);
             const googleProvider = new GoogleAuthProvider();
 
-            // Monitorar Status de Autenticação
+            // Monitorar Status de Autenticação com persistência imediata
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     currentHeroUid = user.uid;
                     currentHeroName = user.displayName || user.email.split('@')[0] || 'Herói';
                     
-                    // Verificar se o usuário já possui Nametag cadastrada no BD
                     const userRef = ref(db, 'users/' + currentHeroUid);
                     get(userRef).then((snapshot) => {
                         if (snapshot.exists() && snapshot.val().nametag) {
@@ -753,7 +744,6 @@
                             document.getElementById('authScreen').style.display = 'none';
                             document.getElementById('statusMessage').innerText = `NAMETAG: @${currentHeroNametag.toUpperCase()}`;
                             
-                            // Carregar dados confidenciais salvos previamente se houver
                             loadSavedConfidentialData(snapshot.val().confidential);
 
                             if (!trackingStarted) {
@@ -762,13 +752,13 @@
                                 trackingStarted = true;
                             }
                         } else {
-                            // Se não tem nametag, exibe a tela de configuração obrigatória pós-login
                             document.getElementById('authScreen').style.display = 'none';
                             document.getElementById('nametagSetupModal').style.display = 'flex';
                         }
                     });
 
                 } else {
+                    // Só exibe a tela de login se realmente não houver usuário autenticado logado
                     document.getElementById('authScreen').style.display = 'flex';
                     document.getElementById('nametagSetupModal').style.display = 'none';
                     document.getElementById('statusMessage').innerText = 'SISTEMA BLOQUEADO';
@@ -776,14 +766,12 @@
                 }
             });
 
-            // Salvar Nametag Escolhida
             window.saveUserNametag = () => {
                 const tagInput = document.getElementById('setupNametagInput').value.trim().toLowerCase();
                 if (!tagInput || tagInput.length < 3) {
                     return showRetroModal("A nametag precisa ter pelo menos 3 caracteres!");
                 }
 
-                // Verificar se nametag já existe
                 const usersRef = ref(db, 'users');
                 get(usersRef).then((snapshot) => {
                     let taken = false;
@@ -799,7 +787,6 @@
                         return showRetroModal("Esta nametag já está em uso por outro herói!");
                     }
 
-                    // Salvar no perfil
                     set(ref(db, 'users/' + currentHeroUid), {
                         uid: currentHeroUid,
                         name: currentHeroName,
@@ -819,7 +806,6 @@
                 });
             };
 
-            // Funções Globais de Autenticação
             window.loginEmail = () => {
                 const email = document.getElementById('emailInput').value;
                 const pass = document.getElementById('passwordInput').value;
@@ -847,7 +833,6 @@
                 });
             };
 
-            // Enviar Convite por Nametag com alerta na tela principal
             window.sendFriendRequestByNametag = () => {
                 const targetTag = document.getElementById('targetNametagInput').value.trim().toLowerCase();
                 if (!targetTag) return showRetroModal("Digite uma nametag válida.");
@@ -873,14 +858,12 @@
                         fromNametag: currentHeroNametag,
                         timestamp: Date.now()
                     }).then(() => {
-                        // Exibindo alerta de convite enviado diretamente na tela principal através do modal de notificação
-                        showRetroModal(`[CONVITE ENVIADO]\nSolicitação de conexão enviada com sucesso para @${targetTag}! Aguardando confirmação.`);
+                        showRetroModal(`[CONVITE ENVIADO]\nSolicitação de conexão enviada com sucesso para @${targetTag}!`);
                         document.getElementById('targetNametagInput').value = '';
                     });
                 });
             };
 
-            // Aceitar Convite
             window.acceptFriendRequest = (fromUid) => {
                 const updates = {};
                 updates[`users/${currentHeroUid}/connections/${fromUid}`] = true;
@@ -892,14 +875,12 @@
                 });
             };
 
-            // Rejeitar / Remover Convite
             window.rejectFriendRequest = (fromUid) => {
                 set(ref(db, `users/${currentHeroUid}/requests/${fromUid}`), null).then(() => {
                     showRetroModal("Convite recusado.");
                 });
             };
 
-            // Remover Conexão
             window.removeConnection = (friendUid) => {
                 const updates = {};
                 updates[`users/${currentHeroUid}/connections/${friendUid}`] = null;
@@ -910,7 +891,6 @@
                 });
             };
 
-            // Salvar Informações Confidenciais do Próprio Usuário
             window.saveConfidentialInfo = () => {
                 const confData = {
                     fullName: document.getElementById('confFullName').value,
@@ -939,7 +919,7 @@
             }
 
         } catch (e) {
-            console.warn("Erro ao configurar Firebase. Executando em modo de simulação local.");
+            console.warn("Modo de simulação local ativo.");
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('nametagSetupModal').style.display = 'none';
             currentHeroUid = 'heroi_' + Math.random().toString(36).substring(2, 9);
@@ -949,7 +929,6 @@
             startRealtimeLocationTracking();
         }
 
-        // FUNÇÕES DE RASTREAMENTO E SINCRONIZAÇÃO DE DADOS DO PERFIL
         function startRealtimeLocationTracking() {
             const gpsStatus = document.getElementById('gpsStatus');
             if ("geolocation" in navigator) {
@@ -959,6 +938,12 @@
                         const lng = position.coords.longitude;
                         myCurrentLatLng = [lat, lng];
                         gpsStatus.innerText = `GPS: ATIVO`;
+
+                        // Centraliza imediatamente onde o usuário está na primeira leitura do GPS
+                        if (!hasCenteredToMyLocation) {
+                            map.setView([lat, lng], 16, { animate: false });
+                            hasCenteredToMyLocation = true;
+                        }
 
                         if (db) {
                             set(ref(db, 'locations/' + currentHeroUid), {
@@ -971,10 +956,9 @@
                     (error) => {
                         gpsStatus.innerText = "GPS: ERRO";
                         myCurrentLatLng = [-23.55052, -46.633308];
-                        if (db) {
-                            set(ref(db, 'locations/' + currentHeroUid), {
-                                nametag: currentHeroNametag, latitude: -23.55052, longitude: -46.633308, timestamp: Date.now()
-                            });
+                        if (!hasCenteredToMyLocation) {
+                            map.setView([-23.55052, -46.633308], 15);
+                            hasCenteredToMyLocation = true;
                         }
                     },
                     { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
@@ -1089,11 +1073,6 @@
             const customIcon = L.divIcon({ className: 'custom-retro-marker', html: iconHtml, iconSize: [24, 24], iconAnchor: [12, 12] });
             const marker = L.marker([lat, lng], { icon: customIcon });
             markersLayer.addLayer(marker);
-
-            if (isSelf && !window.hasCenteredInitial) {
-                map.setView([lat, lng], 15);
-                window.hasCenteredInitial = true;
-            }
         }
 
         const simulatedUsers = {};
@@ -1144,7 +1123,6 @@
             }
         };
 
-        // Gerenciamento da Aba / Modal de Perfil
         window.openProfileModal = function() {
             document.getElementById('profileUidDisplay').innerText = currentHeroUid || 'Simulação';
             document.getElementById('profileNametagDisplay').innerText = '@' + (currentHeroNametag || 'convidado').toUpperCase();
@@ -1155,7 +1133,6 @@
             document.getElementById('profileModal').style.display = 'none';
         }
 
-        // Gerenciamento da Aba de Informações Confidenciais (Antigo Prof 1)
         window.openConfidentialModal = function() {
             document.getElementById('confidentialModal').style.display = 'flex';
         }
@@ -1181,7 +1158,12 @@
             let profileNames = { 2: "Furtivo / Invisível", 3: "Busca de Resgate" };
             showRetroModal(`Perfil de Rastreamento ${profNum} (${profileNames[profNum] || 'Padrão'}) ativado!`); 
         }
-        function toggleView3D() { showRetroModal("Visualização 3D desativada no momento."); }
+        
+        // Função de 3D View com alerta ajustado (removido status de inativo restrito)
+        function toggleView3D() { 
+            showRetroModal("Módulo 3D View acionado. Renderização isométrica pronta."); 
+        }
+
         function openChat() { showRetroModal("Canal de chat seguro aberto com a central de heróis."); }
         function openArchive() { showRetroModal("Arquivos confidenciais de missões abertos."); }
         
