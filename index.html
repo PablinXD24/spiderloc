@@ -168,18 +168,11 @@
             box-shadow: 2px 2px 0px #213865;
             cursor: pointer;
             text-align: center;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .side-btn.btn-logout {
             background: #1b3a57;
             border: 2px solid #0a192f;
-            width: auto;
-            height: auto;
         }
 
         /* Controles de Zoom Estilizados Retrô */
@@ -213,7 +206,7 @@
             box-shadow: 1px 1px 0px #213865;
         }
 
-        /* Mini-mapa Teia de Aranha Poligonal */
+        /* Mini-mapa Teia de Aranha Poligonal com Bússola Dinâmica */
         .spider-minimap {
             position: absolute;
             right: 16px;
@@ -244,6 +237,7 @@
             top: 0;
             left: 0;
             pointer-events: none;
+            transition: transform 0.1s ease-out;
         }
 
         .spider-dot {
@@ -499,7 +493,7 @@
             .top-bar { margin-bottom: 6px; }
             .status-box { font-size: 8px; padding: 6px 8px; }
             .side-toolbar { left: 10px; top: 55px; }
-            .side-btn { padding: 6px; font-size: 7px; width: 28px; height: 28px; }
+            .side-btn { padding: 6px; font-size: 7px; }
             .retro-zoom-control { right: 8px; bottom: 120px; }
             .zoom-btn { width: 34px; height: 34px; font-size: 11px; }
             .spider-minimap { width: 95px; height: 95px; right: 10px; bottom: 10px; }
@@ -603,12 +597,11 @@
             <div class="icon-badge">🕷️</div>
         </div>
 
-        <!-- Menu Lateral Esquerdo com Direções Corretas (N, S, L, O) -->
+        <!-- Menu Lateral Esquerdo -->
         <div class="side-toolbar">
-            <button class="side-btn" id="dirN" title="Norte">N</button>
-            <button class="side-btn" id="dirS" title="Sul">S</button>
-            <button class="side-btn" id="dirL" title="Leste">L</button>
-            <button class="side-btn" id="dirO" title="Oeste">O</button>
+            <button class="side-btn">0</button>
+            <button class="side-btn">S</button>
+            <button class="side-btn">T</button>
             <button class="side-btn btn-logout" onclick="logoutApp()" title="Sair da Conta">X</button>
         </div>
 
@@ -623,9 +616,10 @@
                 <button class="zoom-btn" onclick="zoomOut()">-</button>
             </div>
 
-            <!-- Mini-mapa Teia de Aranha -->
+            <!-- Mini-mapa Teia de Aranha com Letras Direcionais Fixadas Corretamente -->
             <div class="spider-minimap" id="spiderMinimap" onclick="centerOnMe()" title="Radar Teia de Aranha">
-                <svg class="spider-web-svg" viewBox="0 0 100 100">
+                <svg class="spider-web-svg" id="spiderWebSvg" viewBox="0 0 100 100">
+                    <!-- Linhas da teia -->
                     <line x1="50" y1="50" x2="50" y2="0" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="50" y2="100" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="0" y2="50" stroke="#1b3a57" stroke-width="0.8"/>
@@ -638,6 +632,12 @@
                     <polygon points="50,28 68,32 72,50 68,68 50,72 32,68 28,50 32,32" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
                     <polygon points="50,15 78,22 85,50 78,78 50,85 22,78 15,50 22,22" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
                     <polygon points="50,2 90,10 98,50 90,90 50,98 10,90 2,50 10,10" fill="none" stroke="#21486c" stroke-width="1.2"/>
+
+                    <!-- Letras das Direções (N, S, L, O) fixas no SVG para rotacionarem perfeitamente com a bússola -->
+                    <text x="50" y="8" fill="#ffb75e" font-size="7" font-family="'Press Start 2P', monospace" text-anchor="middle">N</text>
+                    <text x="50" y="96" fill="#ffb75e" font-size="7" font-family="'Press Start 2P', monospace" text-anchor="middle">S</text>
+                    <text x="4" y="52.5" fill="#ffb75e" font-size="7" font-family="'Press Start 2P', monospace" text-anchor="start">O</text>
+                    <text x="96" y="52.5" fill="#ffb75e" font-size="7" font-family="'Press Start 2P', monospace" text-anchor="end">L</text>
                 </svg>
                 <div class="spider-dot self-dot" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
             </div>
@@ -732,39 +732,34 @@
         let allUsersData = {};
         let myConnections = {};
 
-        // Função de Bússola: Atualiza a ordem visual das letras cardeais com base no centro do mapa ou rotação
-        function updateCompassDirections() {
-            const center = map.getCenter();
-            // Ponto ligeiramente ao norte e ao leste para calcular a orientação do grid em relação à tela
-            const northPoint = L.latLng(center.lat + 0.01, center.lng);
-            const eastPoint = L.latLng(center.lat, center.lng + 0.01);
-            
-            const centerPointPt = map.latLngToContainerPoint(center);
-            const northPointPt = map.latLngToContainerPoint(northPoint);
-            const eastPointPt = map.latLngToContainerPoint(eastPoint);
-
-            let angleN = Math.atan2(northPointPt.y - centerPointPt.y, northPointPt.x - centerPointPt.x) * (180 / Math.PI) + 90;
-            let angleE = Math.atan2(eastPointPt.y - centerPointPt.y, eastPointPt.x - centerPointPt.x) * (180 / Math.PI);
-
-            // Mapeia o vetor de direção predominante vertical/horizontal na barra lateral esquerda fixa
-            // Ordenando N, S, L, O dinamicamente conforme a orientação da tela do usuário
-            const toolbar = document.querySelector('.side-toolbar');
-            if (toolbar) {
-                // Mantém fixo na barra lateral os botões na ordem correta de acordo com a orientação geográfica atual
-                const btnN = document.getElementById('dirN');
-                const btnS = document.getElementById('dirS');
-                const btnL = document.getElementById('dirL');
-                const btnO = document.getElementById('dirO');
-                
-                if(btnN) btnN.innerText = 'N';
-                if(btnS) btnS.innerText = 'S';
-                if(btnL) btnL.innerText = 'L';
-                if(btnO) btnO.innerText = 'O';
-            }
+        // Rastreamento de orientação (bússola) do dispositivo ou movimento do mapa
+        let currentHeading = 0;
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (event) => {
+                let heading = event.alpha;
+                if (event.webkitCompassHeading !== undefined) {
+                    heading = event.webkitCompassHeading;
+                }
+                if (heading !== null && !isNaN(heading)) {
+                    currentHeading = heading;
+                    updateCompassRotation();
+                }
+            }, true);
         }
 
-        map.on('move', updateCompassDirections);
-        map.on('zoom', updateCompassDirections);
+        // Caso o dispositivo não suporte giroscópio, acompanha a rotação de rota/arraste do mapa se aplicável
+        map.on('rotate', () => {
+            currentHeading = map.getBearing ? map.getBearing() : 0;
+            updateCompassRotation();
+        });
+
+        function updateCompassRotation() {
+            const svgElement = document.getElementById('spiderWebSvg');
+            if (svgElement) {
+                // Rotaciona a bússola mantendo o norte voltado para a direção correta do usuário
+                svgElement.style.transform = `rotate(${-currentHeading}deg)`;
+            }
+        }
 
         try {
             const app = initializeApp(firebaseConfig);
@@ -772,6 +767,7 @@
             auth = getAuth(app);
             const googleProvider = new GoogleAuthProvider();
 
+            // Monitorar Status de Autenticação com persistência imediata
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     currentHeroUid = user.uid;
@@ -981,6 +977,11 @@
                         if (!hasCenteredToMyLocation) {
                             map.setView([lat, lng], 16, { animate: false });
                             hasCenteredToMyLocation = true;
+                        }
+
+                        if (position.coords.heading !== null && !isNaN(position.coords.heading)) {
+                            currentHeading = position.coords.heading;
+                            updateCompassRotation();
                         }
 
                         if (db) {
@@ -1216,3 +1217,4 @@
     </script>
 </body>
 </html>
+```[cite: 1]
