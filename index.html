@@ -265,37 +265,40 @@
             gap: 8px;
         }
 
-        /* Bloco do Botão de Perfil à Esquerda */
+        /* Bloco dos Avatares à Esquerda */
         .avatar-section {
             display: flex;
+            flex-direction: column;
+            gap: 6px;
             align-items: center;
-            justify-content: center;
             flex-shrink: 0;
             padding-left: 4px;
         }
 
-        .profile-btn {
-            width: 60px;
-            height: 80px;
+        .avatar-box-top {
+            width: 44px;
+            height: 44px;
             background: #ff6b4a;
             border: 3px solid #8b2500;
-            border-radius: 8px;
+            border-radius: 50%;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             box-shadow: 2px 2px 0px #1c355e;
-            cursor: pointer;
-            color: #331a00;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 7px;
-            text-align: center;
-            outline: none;
+            font-size: 18px;
         }
 
-        .profile-btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: 0px 0px 0px #1c355e;
+        .avatar-box-main {
+            width: 52px;
+            height: 64px;
+            background: #ff7657;
+            border: 3px solid #8b2500;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 2px 0px #1c355e;
+            position: relative;
         }
 
         /* Grade de Botões */
@@ -359,8 +362,8 @@
             z-index: 1000;
         }
 
-        /* Sistema de Notificações Retrô e Modal de Login */
-        #retroNotificationModal, #authScreen {
+        /* Sistema de Notificações Retrô e Modais */
+        #retroNotificationModal, #authScreen, #nametagScreen, #profileScreen {
             position: absolute;
             top: 0;
             left: 0;
@@ -378,6 +381,10 @@
         #authScreen {
             z-index: 3000;
             display: flex; /* Visível por padrão antes de autenticar */
+        }
+        
+        #nametagScreen, #profileScreen {
+            z-index: 2500;
         }
 
         .retro-modal-box {
@@ -419,10 +426,12 @@
             font-size: 12px;
             outline: none;
             width: 100%;
+            text-transform: uppercase;
         }
 
         .retro-input::placeholder {
             color: #4f6475;
+            text-transform: none;
         }
 
         .retro-modal-btn {
@@ -461,8 +470,8 @@
             .spider-minimap { width: 95px; height: 95px; right: 10px; bottom: 10px; }
             .bottom-panel { gap: 4px; margin-top: 6px; }
             .avatar-section { gap: 4px; }
-            .profile-btn { width: 45px; height: 60px; font-size: 5px; }
-            .profile-btn .profile-icon { font-size: 14px !important; }
+            .avatar-box-top { width: 36px; height: 36px; font-size: 14px; }
+            .avatar-box-main { width: 42px; height: 52px; }
             .buttons-grid { gap: 4px; }
             .pill-btn { font-size: 5px; padding: 6px 5px; margin: 2px; box-shadow: 0px 2px black, 0px -2px black, 2px 0px black, -2px 0px black, 1px 1px black, -1px 1px black, 1px -1px black, -1px -1px black, 0px 4px #00000038, 2px 2px #00000038, -2px 2px #00000038, inset 0px 2px #ffffff36; }
             .pill-btn:active { transform: translateY(2px); box-shadow: 0px 2px black, 0px -2px black, 2px 0px black, -2px 0px black, 1px 1px black, -1px 1px black, 1px -1px black, -1px -1px black, inset 0px 2px #ffffff36; }
@@ -482,6 +491,35 @@
             <button class="retro-modal-btn" onclick="registerEmail()" style="background: #27ae60; border-color: #0b381e;">CADASTRAR NOVA CONTA</button>
             <div style="text-align: center; font-size: 10px; margin: 5px 0;">-- OU --</div>
             <button class="retro-modal-btn btn-google" onclick="loginGoogle()">ENTRAR COM GOOGLE</button>
+        </div>
+    </div>
+    
+    <!-- ESCOLHA DE NAMETAG -->
+    <div id="nametagScreen">
+        <div class="retro-modal-box">
+            <div class="retro-modal-title">REGISTRO DE NAMETAG</div>
+            <div class="retro-modal-content">Identificação pública obrigatória.</div>
+            <input type="text" id="nametagInput" class="retro-input" placeholder="EX: HERO_99">
+            <button class="retro-modal-btn" onclick="saveNametag()">CONFIRMAR</button>
+        </div>
+    </div>
+
+    <!-- ABA DE PERFIL E ALIADOS -->
+    <div id="profileScreen">
+        <div class="retro-modal-box">
+            <div class="retro-modal-title">PERFIL & ALIADOS</div>
+            <div style="font-size:12px; margin-bottom: 10px; text-align: center;">Sua Nametag: <br><span id="myNametagDisplay" style="color:#ffb75e; font-size: 16px; font-weight: bold;"></span></div>
+            
+            <input type="text" id="friendNametagInput" class="retro-input" placeholder="NAMETAG DO ALIADO">
+            <button class="retro-modal-btn" style="background: #27ae60; border-color: #0b381e;" onclick="addFriend()">ADICIONAR ALIADO</button>
+            
+            <div style="margin-top: 15px; border-top: 2px dashed #ffb75e; padding-top: 10px;">
+                <div style="font-size:10px; margin-bottom:5px; color:#ffb75e;">ALIADOS CONECTADOS:</div>
+                <div id="friendsList" style="max-height: 100px; overflow-y: auto; font-size: 10px;">
+                    <!-- Lista injetada dinamicamente -->
+                </div>
+            </div>
+            <button class="retro-modal-btn" style="background:#1b3a57; margin-top:10px;" onclick="closeProfile()">FECHAR TELA</button>
         </div>
     </div>
 
@@ -534,13 +572,11 @@
             </div>
         </div>
 
-        <!-- Painel Inferior com Botão de Perfil à Esquerda e Botões à Direita -->
+        <!-- Painel Inferior com Avatares à Esquerda e Botões à Direita -->
         <div class="bottom-panel">
             <div class="avatar-section">
-                <button class="profile-btn" onclick="showRetroModal('Acessando Perfil do Herói...')">
-                    <span class="profile-icon" style="font-size: 20px; margin-bottom: 4px;">👤</span>
-                    PERFIL
-                </button>
+                <div class="avatar-box-top">🍅</div>
+                <div class="avatar-box-main">🦸‍♂️</div>
             </div>
 
             <div class="buttons-grid">
@@ -555,7 +591,7 @@
                 <button class="pill-btn pill-disabled" onclick="toggleView3D()">3D VIEW</button>
                 <button class="pill-btn pill-orange" onclick="openArchive()">ARCHIVE</button>
                 <!-- Linha 3 -->
-                <button class="pill-btn pill-outline"></button>
+                <button class="pill-btn pill-green" onclick="openProfile()">PERFIL</button>
                 <button class="pill-btn pill-green" onclick="setProf(3)">PROF 3</button>
                 <button class="pill-btn pill-orange" onclick="centerOnMe()">CENTER LOC.</button>
                 <button class="pill-btn pill-orange" onclick="shareLocation()">SHARE</button>
@@ -578,7 +614,7 @@
     <!-- Firebase SDKs e Lógica do Mapa Funcional -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // ==========================================
@@ -595,8 +631,9 @@
 
         let db, auth;
         let currentHeroUid = '';
-        let currentHeroName = '';
+        let currentHeroName = ''; // Passará a ser a Nametag
         let trackingStarted = false;
+        let myFriendsList = []; // Lista de UIDs de aliados
 
         // Inicializa o Mapa Leaflet com coordenadas padrão
         const map = L.map('leafletMap', {
@@ -634,24 +671,54 @@
             // Monitorar Status de Autenticação
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    // Usuário Logado
-                    document.getElementById('authScreen').style.display = 'none';
                     currentHeroUid = user.uid;
-                    currentHeroName = user.displayName || user.email.split('@')[0] || 'Herói';
-                    document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName.toUpperCase()}`;
-                    
-                    if (!trackingStarted) {
-                        startRealtimeLocationTracking();
-                        listenToAllUsersLocations();
-                        trackingStarted = true;
-                    }
+                    // Verifica se o usuário já registrou uma Nametag
+                    const userRef = ref(db, 'users/' + currentHeroUid);
+                    get(userRef).then((snapshot) => {
+                        if (snapshot.exists() && snapshot.val().nametag) {
+                            currentHeroName = snapshot.val().nametag;
+                            completeLoginProcess();
+                        } else {
+                            // Se não tem nametag, abre a tela de registro
+                            document.getElementById('authScreen').style.display = 'none';
+                            document.getElementById('nametagScreen').style.display = 'flex';
+                        }
+                    });
                 } else {
                     // Usuário Deslogado
                     document.getElementById('authScreen').style.display = 'flex';
+                    document.getElementById('nametagScreen').style.display = 'none';
+                    document.getElementById('profileScreen').style.display = 'none';
                     document.getElementById('statusMessage').innerText = 'SISTEMA BLOQUEADO';
                     trackingStarted = false;
+                    myFriendsList = [];
                 }
             });
+
+            // Funções de Registro e Nametag
+            window.saveNametag = async () => {
+                const nametag = document.getElementById('nametagInput').value.trim().toUpperCase();
+                if(!nametag) return showRetroModal("Digite uma Nametag válida!");
+                
+                await set(ref(db, 'users/' + currentHeroUid), { nametag: nametag });
+                currentHeroName = nametag;
+                
+                document.getElementById('nametagScreen').style.display = 'none';
+                completeLoginProcess();
+            };
+
+            function completeLoginProcess() {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName}`;
+                
+                listenToMyFriends(); // Começa a escutar lista de aliados
+                
+                if (!trackingStarted) {
+                    startRealtimeLocationTracking();
+                    listenToAllUsersLocations();
+                    trackingStarted = true;
+                }
+            }
 
             // Funções Globais de Autenticação
             window.loginEmail = () => {
@@ -666,7 +733,7 @@
                 const pass = document.getElementById('passwordInput').value;
                 if(!email || !pass) return showRetroModal("Preencha e-mail e senha para cadastro!");
                 createUserWithEmailAndPassword(auth, email, pass)
-                    .then(() => showRetroModal("Conta criada com sucesso!"))
+                    .then(() => showRetroModal("Conta criada! Conclua com sua Nametag."))
                     .catch(e => showRetroModal("Erro no cadastro: " + e.message));
             };
 
@@ -681,18 +748,88 @@
                 });
             };
 
+            // SISTEMA DE ALIADOS / PERFIL
+            window.openProfile = () => {
+                document.getElementById('myNametagDisplay').innerText = currentHeroName;
+                document.getElementById('profileScreen').style.display = 'flex';
+            };
+
+            window.closeProfile = () => {
+                document.getElementById('profileScreen').style.display = 'none';
+            };
+
+            window.addFriend = async () => {
+                const friendNametag = document.getElementById('friendNametagInput').value.trim().toUpperCase();
+                if(!friendNametag) return showRetroModal("Digite a Nametag do aliado!");
+                if(friendNametag === currentHeroName) return showRetroModal("Você não pode adicionar a si mesmo!");
+
+                const usersRef = ref(db, 'users');
+                get(usersRef).then(snapshot => {
+                    if(snapshot.exists()) {
+                        const users = snapshot.val();
+                        let foundUid = null;
+                        
+                        // Busca o UID correspondente a Nametag
+                        for(let uid in users) {
+                            if(users[uid].nametag && users[uid].nametag.toUpperCase() === friendNametag) {
+                                foundUid = uid;
+                                break;
+                            }
+                        }
+                        
+                        if(foundUid) {
+                            // Adição Mútua para que ambos se vejam no mapa automaticamente
+                            Promise.all([
+                                set(ref(db, 'users/' + currentHeroUid + '/friends/' + foundUid), friendNametag),
+                                set(ref(db, 'users/' + foundUid + '/friends/' + currentHeroUid), currentHeroName)
+                            ]).then(() => {
+                                showRetroModal(`Conexão mútua estabelecida com ${friendNametag}! Vocês já podem se ver no mapa.`);
+                                document.getElementById('friendNametagInput').value = '';
+                            });
+                        } else {
+                            showRetroModal("Nametag não encontrada nos registros!");
+                        }
+                    }
+                });
+            };
+
+            function listenToMyFriends() {
+                onValue(ref(db, 'users/' + currentHeroUid + '/friends'), (snapshot) => {
+                    myFriendsList = [];
+                    const listDiv = document.getElementById('friendsList');
+                    listDiv.innerHTML = '';
+                    
+                    if (snapshot.exists()) {
+                        const friendsData = snapshot.val();
+                        Object.keys(friendsData).forEach(fUid => {
+                            myFriendsList.push(fUid);
+                            listDiv.innerHTML += `<div style="padding: 6px; border-bottom: 1px solid #1b3a57;">• ${friendsData[fUid]}</div>`;
+                        });
+                    } else {
+                        listDiv.innerHTML = '<div style="padding: 6px; color: #4f6475;">Nenhum aliado conectado.</div>';
+                    }
+                    
+                    // Atualiza o mapa se ele já estiver rodando
+                    if (trackingStarted) listenToAllUsersLocations();
+                });
+            }
+
         } catch (e) {
             console.warn("Erro ao configurar Firebase. Executando em modo de simulação local.");
-            // Modo Fallback sem Auth
             document.getElementById('authScreen').style.display = 'none';
             currentHeroUid = 'heroi_' + Math.random().toString(36).substring(2, 9);
-            currentHeroName = 'Herói-' + Math.floor(Math.random() * 900 + 100);
-            document.getElementById('statusMessage').innerText = `SIMULAÇÃO: ${currentHeroName.toUpperCase()}`;
+            currentHeroName = 'SIMULAÇÃO-' + Math.floor(Math.random() * 900 + 100);
+            document.getElementById('statusMessage').innerText = `SIMULAÇÃO: ${currentHeroName}`;
+            
+            // Funções fake para modo simulação não quebrar
+            window.openProfile = () => showRetroModal("O sistema de perfil está indisponível na simulação local.");
+            myFriendsList = ['mock_vigilante']; 
+
             startRealtimeLocationTracking();
             listenToAllUsersLocations();
         }
 
-        // FUNÇÕES DE RASTREAMENTO
+        // FUNÇÕES DE RASTREAMENTO E MAPA
         function startRealtimeLocationTracking() {
             const gpsStatus = document.getElementById('gpsStatus');
             if ("geolocation" in navigator) {
@@ -714,7 +851,7 @@
                     (error) => {
                         gpsStatus.innerText = "GPS: ERRO";
                         myCurrentLatLng = [-23.55052, -46.633308];
-                        updateLocalMarkerSimulation(currentHeroUid, currentHeroName, -23.55052, -46.633308);
+                        if(!db) updateLocalMarkerSimulation(currentHeroUid, currentHeroName, -23.55052, -46.633308);
                     },
                     { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
                 );
@@ -732,8 +869,12 @@
                 if (data) {
                     Object.keys(data).forEach(uid => {
                         const user = data[uid];
-                        allUsersData[uid] = user;
-                        renderMarker(uid, user.name, user.latitude, user.longitude, uid === currentHeroUid);
+                        
+                        // FILTRO: Apenas renderiza no mapa você mesmo e os usuários que estão na sua lista de amigos
+                        if(uid === currentHeroUid || myFriendsList.includes(uid)) {
+                            allUsersData[uid] = user;
+                            renderMarker(uid, user.name, user.latitude, user.longitude, uid === currentHeroUid);
+                        }
                     });
                     updateSpiderMinimap();
                 }
