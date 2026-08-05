@@ -15,6 +15,9 @@
             padding: 0;
             user-select: none;
             -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
         body {
@@ -22,16 +25,20 @@
             color: #d1f7ff;
             font-family: 'Share Tech Mono', monospace;
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            position: fixed;
+            width: 100%;
         }
 
         /* Container principal simulando o dispositivo/tela */
         .device-frame {
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             max-width: 900px;
             max-height: 900px;
             background: #4a90e2;
@@ -88,9 +95,9 @@
             border: 4px solid #1b3a57;
             position: relative;
             overflow: hidden;
+            touch-action: pan-x pan-y pinch-zoom;
         }
 
-        /* Elemento onde o mapa Leaflet será renderizado */
         #leafletMap {
             width: 100%;
             height: 100%;
@@ -98,12 +105,10 @@
             z-index: 1;
         }
 
-        /* Filtro tático/retrô aplicado sobre o mapa real para manter a estética do projeto */
         .leaflet-tile {
             filter: brightness(0.6) invert(1) contrast(1.5) hue-rotate(180deg) saturate(0.8) !important;
         }
 
-        /* Estilização personalizada dos Marcadores no mapa */
         .custom-retro-marker {
             background: transparent;
             border: none;
@@ -165,30 +170,153 @@
             text-align: center;
         }
 
-        /* Painel de Controle Inferior */
-        .bottom-panel {
-            margin-top: 10px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+        /* Controles de Zoom Estilizados Retrô */
+        .retro-zoom-control {
+            position: absolute;
+            right: 12px;
+            bottom: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 1000;
         }
 
-        .retro-btn {
+        .zoom-btn {
             background: #ffdfba;
             color: #4a2e00;
             font-family: 'Press Start 2P', monospace;
-            font-size: 8px;
-            padding: 10px 4px;
+            font-size: 10px;
+            width: 32px;
+            height: 32px;
             border: 3px solid #8c5821;
-            box-shadow: 3px 3px 0px #213865;
+            box-shadow: 2px 2px 0px #213865;
             cursor: pointer;
-            text-align: center;
-            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .retro-btn:active {
-            transform: translate(2px, 2px);
+        .zoom-btn:active {
+            transform: translate(1px, 1px);
             box-shadow: 1px 1px 0px #213865;
+        }
+
+        /* Painel de Controle Inferior: Alinhado à direita com os avatares à esquerda */
+        .bottom-panel {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        /* Bloco dos Avatares à Esquerda (como na referência) */
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+            flex-shrink: 0;
+            padding-left: 4px;
+        }
+
+        .avatar-box-top {
+            width: 44px;
+            height: 44px;
+            background: #ff6b4a;
+            border: 3px solid #8b2500;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 2px 0px #1c355e;
+            font-size: 18px;
+        }
+
+        .avatar-box-main {
+            width: 52px;
+            height: 64px;
+            background: #ff7657;
+            border: 3px solid #8b2500;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 2px 0px #1c355e;
+            position: relative;
+        }
+
+        /* Grade de Botões Exata da Referência */
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, auto);
+            gap: 6px;
+            justify-content: flex-end;
+            flex-grow: 1;
+        }
+
+        /* Estilo pixelado rígido para simular as pílulas da referência */
+        .pill-btn {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            padding: 7px 8px;
+            border-radius: 12px;
+            border: 3px solid #142a4a;
+            cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
+            box-shadow: 2px 2px 0px #142a4a;
+            letter-spacing: -0.5px;
+        }
+
+        .pill-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #142a4a;
+        }
+
+        /* Cores exatas idênticas à referência */
+        .pill-green-dark {
+            background: #27ae60;
+            color: #ffffff;
+            border-color: #0b381e;
+            box-shadow: 2px 2px 0px #0b381e;
+        }
+
+        .pill-green {
+            background: #2ecc71;
+            color: #0b381e;
+            border-color: #0b381e;
+            box-shadow: 2px 2px 0px #0b381e;
+        }
+
+        .pill-red {
+            background: #e74c3c;
+            color: #ffffff;
+            border-color: #641e16;
+            box-shadow: 2px 2px 0px #641e16;
+        }
+
+        .pill-outline {
+            background: transparent;
+            color: transparent;
+            border-color: #213865;
+            box-shadow: 2px 2px 0px #142a4a;
+            cursor: default;
+        }
+
+        .pill-orange {
+            background: #f39c12;
+            color: #3b2300;
+            border-color: #6e4405;
+            box-shadow: 2px 2px 0px #6e4405;
+        }
+
+        .pill-disabled {
+            background: #4f6475;
+            color: #b0bec5;
+            border-color: #263238;
+            box-shadow: 2px 2px 0px #263238;
+            cursor: not-allowed;
         }
 
         /* Mensagens de status do GPS */
@@ -243,17 +371,46 @@
                 font-size: 7px;
             }
 
+            .retro-zoom-control {
+                right: 8px;
+                bottom: 110px;
+            }
+
+            .zoom-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 11px;
+            }
+
             .bottom-panel {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 5px;
+                gap: 4px;
                 margin-top: 6px;
             }
 
-            .retro-btn {
-                font-size: 7px;
-                padding: 8px 2px;
+            .avatar-section {
+                gap: 4px;
+            }
+
+            .avatar-box-top {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .avatar-box-main {
+                width: 42px;
+                height: 52px;
+            }
+
+            .buttons-grid {
+                gap: 3px;
+            }
+
+            .pill-btn {
+                font-size: 5.5px;
+                padding: 6px 4px;
                 border-width: 2px;
-                box-shadow: 2px 2px 0px #213865;
+                box-shadow: 1px 1px 0px #142a4a;
             }
 
             .gps-status {
@@ -286,18 +443,42 @@
         <div class="map-viewport">
             <div class="gps-status" id="gpsStatus">GPS: Buscando sinal...</div>
             <div id="leafletMap"></div>
+
+            <!-- Controles de Zoom Personalizados Retrô -->
+            <div class="retro-zoom-control">
+                <button class="zoom-btn" onclick="zoomIn()">+</button>
+                <button class="zoom-btn" onclick="zoomOut()">-</button>
+            </div>
         </div>
 
-        <!-- Painel de Controle Inferior -->
+        <!-- Painel Inferior com Avatares à Esquerda e Botões à Direita Exatamente como a Referência -->
         <div class="bottom-panel">
-            <button class="retro-btn" onclick="setTerrainMode()">TERRAIN</button>
-            <button class="retro-btn" onclick="toggleView3D()">3D VIEW</button>
-            <button class="retro-btn" onclick="centerOnMe()">CENTER LOC</button>
-            <button class="retro-btn" onclick="openChat()">CHAT</button>
-            <button class="retro-btn">PROF 1</button>
-            <button class="retro-btn">PROF 2</button>
-            <button class="retro-btn" onclick="openArchive()">ARCHIVE</button>
-            <button class="retro-btn" onclick="shareLocation()">SHARE</button>
+            <!-- Avatares à Esquerda -->
+            <div class="avatar-section">
+                <div class="avatar-box-top">🍅</div>
+                <div class="avatar-box-main">🦸‍♂️</div>
+            </div>
+
+            <!-- Grade de Botões à Direita -->
+            <div class="buttons-grid">
+                <!-- Linha 1 -->
+                <button class="pill-btn pill-green-dark" onclick="setAlias('A.1')">A.1</button>
+                <button class="pill-btn pill-green" onclick="setProf(1)">PROF 1</button>
+                <button class="pill-btn pill-orange" onclick="setTerrainMode()">TERRAIN</button>
+                <button class="pill-btn pill-orange" onclick="openChat()">CHAT</button>
+
+                <!-- Linha 2 -->
+                <button class="pill-btn pill-red" onclick="setAlias('A.2')">A.2</button>
+                <button class="pill-btn pill-green" onclick="setProf(2)">PROF 2</button>
+                <button class="pill-btn pill-disabled" onclick="toggleView3D()">3D VIEW</button>
+                <button class="pill-btn pill-orange" onclick="openArchive()">ARCHIVE</button>
+
+                <!-- Linha 3 -->
+                <button class="pill-btn pill-outline"></button>
+                <button class="pill-btn pill-green" onclick="setProf(3)">PROF 3</button>
+                <button class="pill-btn pill-orange" onclick="centerOnMe()">CENTER LOC.</button>
+                <button class="pill-btn pill-orange" onclick="shareLocation()">SHARE</button>
+            </div>
         </div>
     </div>
 
@@ -335,11 +516,23 @@
 
         document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName.toUpperCase()}`;
 
-        // Inicializa o Mapa Leaflet com coordenadas padrão (ex: São Paulo) centralizadas
+        // Inicializa o Mapa Leaflet com coordenadas padrão otimizadas para toque mobile
         const map = L.map('leafletMap', {
             zoomControl: false,
-            attributionControl: false
+            attributionControl: false,
+            tap: true,
+            dragging: true,
+            touchZoom: true,
+            scrollWheelZoom: true
         }).setView([-23.55052, -46.633308], 14);
+
+        // Funções de Zoom globais para os botões estilizados
+        window.zoomIn = function() {
+            map.zoomIn();
+        }
+        window.zoomOut = function() {
+            map.zoomOut();
+        }
 
         // Adiciona a camada de mapa base (OpenStreetMap)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -376,7 +569,6 @@
                     (error) => {
                         gpsStatus.innerText = "GPS: ERRO";
                         console.error(error);
-                        // Fallback de simulação caso o GPS seja negado
                         myCurrentLatLng = [-23.55052, -46.633308];
                         updateLocalMarkerSimulation(currentHeroUid, currentHeroName, -23.55052, -46.633308);
                     },
@@ -434,7 +626,6 @@
             simulatedUsers[uid] = { name, latitude: lat, longitude: lng };
             markersLayer.clearLayers();
 
-            // Adiciona ponto de teste simulado
             renderMarker('mock_vigilante', 'Vigilante-X', lat + 0.005, lng + 0.005, false);
 
             Object.keys(simulatedUsers).forEach(id => {
@@ -443,7 +634,6 @@
             });
         }
 
-        // Função global para centralizar no usuário atual (ligada ao botão CENTER LOC)
         window.centerOnMe = function() {
             if (myCurrentLatLng) {
                 map.setView(myCurrentLatLng, 16, { animate: true });
@@ -454,10 +644,12 @@
         };
     </script>
 
-    <!-- Demais Funções dos Botões Originais -->
+    <!-- Funções dos Botões -->
     <script>
+        function setAlias(alias) { alert(`Alias ${alias} selecionado!`); }
+        function setProf(profNum) { alert(`Perfil ${profNum} selecionado!`); }
         function setTerrainMode() { alert("Modo de Terreno ativado!"); }
-        function toggleView3D() { alert("Alternando para visualização 3D..."); }
+        function toggleView3D() { alert("Visualização 3D desativada no momento."); }
         function openChat() { alert("Canal de chat aberto."); }
         function openArchive() { alert("Arquivos abertos."); }
         function shareLocation() { alert("Link copiado para compartilhamento!"); }
