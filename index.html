@@ -360,7 +360,7 @@
         }
 
         /* Sistema de Notificações Retrô e Modais */
-        #retroNotificationModal, #authScreen, #profileModal, #nametagSetupModal {
+        #retroNotificationModal, #authScreen, #profileModal, #nametagSetupModal, #confidentialModal {
             position: absolute;
             top: 0;
             left: 0;
@@ -533,12 +533,13 @@
         </div>
     </div>
 
-    <!-- ABA DE PERFIL DO USUÁRIO -->
+    <!-- ABA DE PERFIL DO USUÁRIO COMPLETA -->
     <div id="profileModal">
         <div class="retro-modal-box">
-            <div class="retro-modal-title">PERFIL DO HERÓI</div>
-            <div style="font-size: 11px; margin-bottom: 4px;">UID: <span id="profileUidDisplay" style="color: #ffb75e;">-</span></div>
-            <div style="font-size: 11px; margin-bottom: 8px;">NAMETAG ATUAL: <span id="profileNametagDisplay" style="color: #2ecc71; font-weight: bold;">-</span></div>
+            <div class="retro-modal-title">CENTRAL DO HERÓI & PERFIL</div>
+            <div style="font-size: 11px; margin-bottom: 2px;">UID: <span id="profileUidDisplay" style="color: #ffb75e;">-</span></div>
+            <div style="font-size: 11px; margin-bottom: 2px;">NAMETAG: <span id="profileNametagDisplay" style="color: #2ecc71; font-weight: bold;">-</span></div>
+            <div style="font-size: 11px; margin-bottom: 6px;">STATUS DE ACESSO: <span style="color: #2ecc71;">ONLINE</span></div>
             
             <div class="profile-section-title">ADICIONAR HERÓI VIA NAMETAG</div>
             <div style="display: flex; gap: 6px;">
@@ -547,16 +548,44 @@
             </div>
 
             <div class="profile-section-title">CONVITES PENDENTES (RECEBIDOS)</div>
-            <div id="pendingRequestsContainer" style="max-height: 100px; overflow-y: auto; border: 1px dashed #ffb75e; padding: 4px;">
+            <div id="pendingRequestsContainer" style="max-height: 90px; overflow-y: auto; border: 1px dashed #ffb75e; padding: 4px;">
                 <div style="font-size: 10px; color: #78909c; text-align: center; padding: 6px;">Nenhum convite pendente.</div>
             </div>
 
             <div class="profile-section-title">HERÓIS CONECTADOS NO MAPA</div>
-            <div id="friendsListContainer" style="max-height: 120px; overflow-y: auto; border: 1px dashed #2ecc71; padding: 4px;">
+            <div id="friendsListContainer" style="max-height: 100px; overflow-y: auto; border: 1px dashed #2ecc71; padding: 4px;">
                 <div style="font-size: 10px; color: #78909c; text-align: center; padding: 6px;">Nenhum herói adicionado ainda.</div>
             </div>
 
-            <button class="retro-modal-btn" onclick="closeProfileModal()" style="background: #1b3a57; border-color: #ffb75e; margin-top: 10px;">FECHAR PERFIL</button>
+            <button class="retro-modal-btn" onclick="closeProfileModal()" style="background: #1b3a57; border-color: #ffb75e; margin-top: 6px;">FECHAR PERFIL</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE INFORMAÇÕES CONFIDENCIAIS (Antigo Prof 1) -->
+    <div id="confidentialModal">
+        <div class="retro-modal-box">
+            <div class="retro-modal-title">INF CONFIDENCIAIS</div>
+            <div style="font-size: 11px; text-align: center; color: #d1f7ff;">Preencha seus dados cadastrais, táticos e de identificação pessoal no sistema.</div>
+            
+            <div style="display:flex; flex-direction:column; gap:6px; max-height: 250px; overflow-y:auto; padding-right:4px;">
+                <label style="font-size:9px; color:#ffb75e;">NOME COMPLETO OU CODINOME:</label>
+                <input type="text" id="confFullName" class="retro-input" placeholder="Ex: John Doe">
+
+                <label style="font-size:9px; color:#ffb75e;">IDADE / CLASSE:</label>
+                <input type="text" id="confAgeClass" class="retro-input" placeholder="Ex: 25 Anos / Tático">
+
+                <label style="font-size:9px; color:#ffb75e;">HABILIDADES /ESPECIALIDADE:</label>
+                <input type="text" id="confSkills" class="retro-input" placeholder="Ex: Engenharia de Software, Pilotagem">
+
+                <label style="font-size:9px; color:#ffb75e;">CONTATO DE EMERGÊNCIA:</label>
+                <input type="text" id="confEmergency" class="retro-input" placeholder="Ex: Central / Alerta Geral">
+
+                <label style="font-size:9px; color:#ffb75e;">NOTAS / BIO PESSOAL:</label>
+                <textarea id="confBio" class="retro-input" placeholder="Escreva observações ou detalhes adicionais..." style="resize:none; height:60px;"></textarea>
+            </div>
+
+            <button class="retro-modal-btn" onclick="saveConfidentialInfo()" style="background: #27ae60; border-color: #0b381e;">SALVAR DADOS</button>
+            <button class="retro-modal-btn" onclick="closeConfidentialModal()" style="background: #1b3a57; border-color: #ffb75e; margin-top: 2px;">VOLTAR</button>
         </div>
     </div>
 
@@ -622,7 +651,8 @@
             <div class="buttons-grid">
                 <!-- Linha 1 -->
                 <button class="pill-btn pill-green-dark" onclick="setAlias('A.1')">A.1</button>
-                <button class="pill-btn pill-green" onclick="setProf(1)">PROF 1</button>
+                <!-- Botão alterado de "PROF 1" para "INF CONFIDENCIAIS" com funcionalidade personalizada -->
+                <button class="pill-btn pill-green" onclick="openConfidentialModal()">INF CONF</button>
                 <button class="pill-btn pill-orange" onclick="setTerrainMode()">TERRAIN</button>
                 <button class="pill-btn pill-orange" onclick="openChat()">CHAT</button>
                 <!-- Linha 2 -->
@@ -723,6 +753,9 @@
                             document.getElementById('authScreen').style.display = 'none';
                             document.getElementById('statusMessage').innerText = `NAMETAG: @${currentHeroNametag.toUpperCase()}`;
                             
+                            // Carregar dados confidenciais salvos previamente se houver
+                            loadSavedConfidentialData(snapshot.val().confidential);
+
                             if (!trackingStarted) {
                                 startRealtimeLocationTracking();
                                 listenToUserData();
@@ -814,13 +847,12 @@
                 });
             };
 
-            // Enviar Convite por Nametag
+            // Enviar Convite por Nametag com alerta na tela principal
             window.sendFriendRequestByNametag = () => {
                 const targetTag = document.getElementById('targetNametagInput').value.trim().toLowerCase();
                 if (!targetTag) return showRetroModal("Digite uma nametag válida.");
                 if (targetTag === currentHeroNametag) return showRetroModal("Você não pode adicionar a si mesmo!");
 
-                // Procurar UID correspondente à nametag
                 const usersRef = ref(db, 'users');
                 get(usersRef).then((snapshot) => {
                     let targetUid = null;
@@ -836,13 +868,13 @@
                         return showRetroModal("Herói com esta nametag não foi encontrado!");
                     }
 
-                    // Enviar convite para o nó de requisições do usuário alvo
                     set(ref(db, `users/${targetUid}/requests/${currentHeroUid}`), {
                         fromUid: currentHeroUid,
                         fromNametag: currentHeroNametag,
                         timestamp: Date.now()
                     }).then(() => {
-                        showRetroModal(`Convite enviado com sucesso para @${targetTag}!`);
+                        // Exibindo alerta de convite enviado diretamente na tela principal através do modal de notificação
+                        showRetroModal(`[CONVITE ENVIADO]\nSolicitação de conexão enviada com sucesso para @${targetTag}! Aguardando confirmação.`);
                         document.getElementById('targetNametagInput').value = '';
                     });
                 });
@@ -850,15 +882,13 @@
 
             // Aceitar Convite
             window.acceptFriendRequest = (fromUid) => {
-                // Adiciona na lista de amigos/conexões mútuas de ambos
                 const updates = {};
                 updates[`users/${currentHeroUid}/connections/${fromUid}`] = true;
                 updates[`users/${fromUid}/connections/${currentHeroUid}`] = true;
-                // Remove o pedido pendente
                 updates[`users/${currentHeroUid}/requests/${fromUid}`] = null;
 
                 update(ref(db), updates).then(() => {
-                    showRetroModal("Herói adicionado! Agora vocês podem ver suas localizações no mapa.");
+                    showRetroModal("Convite aceito! Herói adicionado ao radar e mapa principal.");
                 });
             };
 
@@ -879,6 +909,34 @@
                     showRetroModal("Herói removido das conexões.");
                 });
             };
+
+            // Salvar Informações Confidenciais do Próprio Usuário
+            window.saveConfidentialInfo = () => {
+                const confData = {
+                    fullName: document.getElementById('confFullName').value,
+                    ageClass: document.getElementById('confAgeClass').value,
+                    skills: document.getElementById('confSkills').value,
+                    emergency: document.getElementById('confEmergency').value,
+                    bio: document.getElementById('confBio').value,
+                    updatedAt: Date.now()
+                };
+
+                update(ref(db, `users/${currentHeroUid}/confidential`), confData).then(() => {
+                    showRetroModal("Informações confidenciais salvas com segurança no banco de dados!");
+                    document.getElementById('confidentialModal').style.display = 'none';
+                }).catch(e => {
+                    showRetroModal("Erro ao salvar dados: " + e.message);
+                });
+            };
+
+            function loadSavedConfidentialData(confObj) {
+                if (!confObj) return;
+                document.getElementById('confFullName').value = confObj.fullName || '';
+                document.getElementById('confAgeClass').value = confObj.ageClass || '';
+                document.getElementById('confSkills').value = confObj.skills || '';
+                document.getElementById('confEmergency').value = confObj.emergency || '';
+                document.getElementById('confBio').value = confObj.bio || '';
+            }
 
         } catch (e) {
             console.warn("Erro ao configurar Firebase. Executando em modo de simulação local.");
@@ -927,7 +985,6 @@
         function listenToUserData() {
             if (!db) return;
 
-            // Ouvir alterações no próprio perfil (conexões e solicitações)
             const userRef = ref(db, `users/${currentHeroUid}`);
             onValue(userRef, (snapshot) => {
                 const data = snapshot.val();
@@ -951,14 +1008,12 @@
                 allUsersData = {};
 
                 if (data) {
-                    // Sempre renderiza a si mesmo
                     if (data[currentHeroUid] && myCurrentLatLng) {
                         const selfData = data[currentHeroUid];
                         allUsersData[currentHeroUid] = selfData;
                         renderMarker(currentHeroUid, `@${selfData.nametag} (Você)`, myCurrentLatLng[0], myCurrentLatLng[1], true);
                     }
 
-                    // Renderiza apenas os usuários que estão na lista de conexões mútuas
                     Object.keys(myConnections).forEach(friendUid => {
                         if (data[friendUid]) {
                             const friend = data[friendUid];
@@ -1006,7 +1061,6 @@
                 return;
             }
 
-            // Buscar detalhes dos amigos para exibir as nametags
             const usersRef = ref(db, 'users');
             get(usersRef).then((snapshot) => {
                 const allUsers = snapshot.val() || {};
@@ -1042,7 +1096,6 @@
             }
         }
 
-        // SIMULADOR LOCAL (Caso o Firebase não esteja conectado)
         const simulatedUsers = {};
         function updateLocalMarkerSimulation(uid, name, lat, lng) {
             simulatedUsers[uid] = { nametag: name, latitude: lat, longitude: lng };
@@ -1101,6 +1154,15 @@
         window.closeProfileModal = function() {
             document.getElementById('profileModal').style.display = 'none';
         }
+
+        // Gerenciamento da Aba de Informações Confidenciais (Antigo Prof 1)
+        window.openConfidentialModal = function() {
+            document.getElementById('confidentialModal').style.display = 'flex';
+        }
+
+        window.closeConfidentialModal = function() {
+            document.getElementById('confidentialModal').style.display = 'none';
+        }
     </script>
 
     <!-- Funções Auxiliares de Interface -->
@@ -1116,7 +1178,7 @@
 
         function setAlias(alias) { showRetroModal(`Alias corporativo alterado para: ${alias}`); }
         function setProf(profNum) { 
-            let profileNames = { 1: "Operacional Tático", 2: "Furtivo / Invisível", 3: "Busca de Resgate" };
+            let profileNames = { 2: "Furtivo / Invisível", 3: "Busca de Resgate" };
             showRetroModal(`Perfil de Rastreamento ${profNum} (${profileNames[profNum] || 'Padrão'}) ativado!`); 
         }
         function toggleView3D() { showRetroModal("Visualização 3D desativada no momento."); }
