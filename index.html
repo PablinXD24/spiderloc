@@ -299,6 +299,12 @@
             justify-content: center;
             box-shadow: 2px 2px 0px #1c355e;
             position: relative;
+            cursor: pointer;
+        }
+        
+        .avatar-box-main:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #1c355e;
         }
 
         /* Grade de Botões */
@@ -362,8 +368,8 @@
             z-index: 1000;
         }
 
-        /* Sistema de Notificações Retrô e Modais */
-        #retroNotificationModal, #authScreen, #nametagScreen, #profileScreen {
+        /* Sistema de Notificações Retrô e Modal de Login */
+        #retroNotificationModal, #authScreen {
             position: absolute;
             top: 0;
             left: 0;
@@ -377,14 +383,9 @@
             padding: 20px;
         }
 
-        /* O Modal de Autenticação tem z-index maior para cobrir tudo até logar */
         #authScreen {
-            z-index: 3000;
-            display: flex; /* Visível por padrão antes de autenticar */
-        }
-        
-        #nametagScreen, #profileScreen {
-            z-index: 2500;
+            z-index: 5000;
+            display: flex;
         }
 
         .retro-modal-box {
@@ -426,12 +427,10 @@
             font-size: 12px;
             outline: none;
             width: 100%;
-            text-transform: uppercase;
         }
 
         .retro-input::placeholder {
             color: #4f6475;
-            text-transform: none;
         }
 
         .retro-modal-btn {
@@ -455,6 +454,14 @@
         .btn-google {
             background: #4285F4;
             border-color: #0d47a1;
+        }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #0a192f;
         }
 
         /* RESPONSIVIDADE ESPECIAL PARA MOBILE */
@@ -481,7 +488,7 @@
 </head>
 <body>
 
-    <!-- INTERFACE DE AUTENTICAÇÃO (LOGIN/CADASTRO) -->
+    <!-- INTERFACE DE AUTENTICAÇÃO -->
     <div id="authScreen">
         <div class="retro-modal-box">
             <div class="retro-modal-title">ACESSO RESTRITO</div>
@@ -493,33 +500,42 @@
             <button class="retro-modal-btn btn-google" onclick="loginGoogle()">ENTRAR COM GOOGLE</button>
         </div>
     </div>
-    
-    <!-- ESCOLHA DE NAMETAG -->
-    <div id="nametagScreen">
+
+    <!-- MODAL NAMETAG (APÓS LOGIN) -->
+    <div id="nametagModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(11, 19, 41, 0.95); z-index:4500; justify-content:center; align-items:center; padding: 20px;">
         <div class="retro-modal-box">
-            <div class="retro-modal-title">REGISTRO DE NAMETAG</div>
-            <div class="retro-modal-content">Identificação pública obrigatória.</div>
-            <input type="text" id="nametagInput" class="retro-input" placeholder="EX: HERO_99">
-            <button class="retro-modal-btn" onclick="saveNametag()">CONFIRMAR</button>
+            <div class="retro-modal-title">REGISTRO DE IDENTIDADE</div>
+            <div class="retro-modal-content" style="margin-bottom: 10px;">Defina sua Nametag única para ser encontrado por aliados.</div>
+            <input type="text" id="nametagInput" class="retro-input" placeholder="EX: SPIDER99" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_]/g, '')">
+            <button class="retro-modal-btn" onclick="saveNametag()" style="background: #27ae60; border-color: #0b381e;">SALVAR NAMETAG</button>
         </div>
     </div>
 
-    <!-- ABA DE PERFIL E ALIADOS -->
-    <div id="profileScreen">
-        <div class="retro-modal-box">
-            <div class="retro-modal-title">PERFIL & ALIADOS</div>
-            <div style="font-size:12px; margin-bottom: 10px; text-align: center;">Sua Nametag: <br><span id="myNametagDisplay" style="color:#ffb75e; font-size: 16px; font-weight: bold;"></span></div>
+    <!-- MODAL DE PERFIL (AMIGOS E CONVITES) -->
+    <div id="profileModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(11, 19, 41, 0.85); z-index:3000; justify-content:center; align-items:center; padding: 20px;">
+        <div class="retro-modal-box" style="max-height: 90vh; overflow-y: auto;">
+            <div class="retro-modal-title">PERFIL E ALIADOS</div>
+            <div class="retro-modal-content" id="myNametagDisplay" style="color: #ffb75e; font-size: 14px; font-weight: bold;">Nametag: ...</div>
             
-            <input type="text" id="friendNametagInput" class="retro-input" placeholder="NAMETAG DO ALIADO">
-            <button class="retro-modal-btn" style="background: #27ae60; border-color: #0b381e;" onclick="addFriend()">ADICIONAR ALIADO</button>
+            <div style="border-top: 2px dashed #ffb75e; margin: 10px 0;"></div>
             
-            <div style="margin-top: 15px; border-top: 2px dashed #ffb75e; padding-top: 10px;">
-                <div style="font-size:10px; margin-bottom:5px; color:#ffb75e;">ALIADOS CONECTADOS:</div>
-                <div id="friendsList" style="max-height: 100px; overflow-y: auto; font-size: 10px;">
-                    <!-- Lista injetada dinamicamente -->
-                </div>
+            <div class="retro-modal-title" style="font-size: 9px; border:none; text-align:left;">ADICIONAR ALIADO</div>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="addFriendInput" class="retro-input" placeholder="NAMETAG" style="flex-grow: 1; padding: 6px;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_]/g, '')">
+                <button class="retro-modal-btn" onclick="sendInvite()" style="margin:0; padding: 6px 10px;">ENVIAR</button>
             </div>
-            <button class="retro-modal-btn" style="background:#1b3a57; margin-top:10px;" onclick="closeProfile()">FECHAR TELA</button>
+            
+            <div style="border-top: 2px dashed #ffb75e; margin: 10px 0;"></div>
+            
+            <div class="retro-modal-title" style="font-size: 9px; border:none; text-align:left;">CONVITES PENDENTES</div>
+            <div id="invitesList" style="font-size: 10px; color: #d1f7ff; text-align: left; min-height: 30px;">Nenhum convite.</div>
+            
+            <div style="border-top: 2px dashed #ffb75e; margin: 10px 0;"></div>
+            
+            <div class="retro-modal-title" style="font-size: 9px; border:none; text-align:left;">ALIADOS NO MAPA</div>
+            <div id="friendsList" style="font-size: 10px; color: #d1f7ff; text-align: left; min-height: 40px;">Nenhum aliado adicionado.</div>
+
+            <button class="retro-modal-btn" style="background:#1b3a57; border-color:#0a192f; margin-top: 15px;" onclick="closeProfile()">FECHAR PERFIL</button>
         </div>
     </div>
 
@@ -576,7 +592,7 @@
         <div class="bottom-panel">
             <div class="avatar-section">
                 <div class="avatar-box-top">🍅</div>
-                <div class="avatar-box-main">🦸‍♂️</div>
+                <div class="avatar-box-main" onclick="openProfile()">🦸‍♂️</div>
             </div>
 
             <div class="buttons-grid">
@@ -591,7 +607,7 @@
                 <button class="pill-btn pill-disabled" onclick="toggleView3D()">3D VIEW</button>
                 <button class="pill-btn pill-orange" onclick="openArchive()">ARCHIVE</button>
                 <!-- Linha 3 -->
-                <button class="pill-btn pill-green" onclick="openProfile()">PERFIL</button>
+                <button class="pill-btn pill-orange" onclick="openProfile()">PERFIL</button>
                 <button class="pill-btn pill-green" onclick="setProf(3)">PROF 3</button>
                 <button class="pill-btn pill-orange" onclick="centerOnMe()">CENTER LOC.</button>
                 <button class="pill-btn pill-orange" onclick="shareLocation()">SHARE</button>
@@ -600,7 +616,7 @@
     </div>
 
     <!-- Modal de Notificação Retrô integrado à interface -->
-    <div id="retroNotificationModal">
+    <div id="retroNotificationModal" style="z-index: 6000;">
         <div class="retro-modal-box">
             <div class="retro-modal-title">TERMINAL NOTIFICAÇÃO</div>
             <div class="retro-modal-content" id="retroModalText">Mensagem do sistema</div>
@@ -614,12 +630,9 @@
     <!-- Firebase SDKs e Lógica do Mapa Funcional -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // ==========================================
-        // CONFIGURAÇÃO DO FIREBASE FORNECIDA
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCvTRvsTKEBjYiKxIKqDcTfjRFM_tzxYgw",
             authDomain: "spider-track-6c9fd.firebaseapp.com",
@@ -631,11 +644,11 @@
 
         let db, auth;
         let currentHeroUid = '';
-        let currentHeroName = ''; // Passará a ser a Nametag
+        let currentHeroName = ''; // Nametag
         let trackingStarted = false;
-        let myFriendsList = []; // Lista de UIDs de aliados
+        
+        window.myFriends = {}; // Mapeia uid -> nametag
 
-        // Inicializa o Mapa Leaflet com coordenadas padrão
         const map = L.map('leafletMap', {
             zoomControl: false, attributionControl: false, tap: true, dragging: true, touchZoom: true, scrollWheelZoom: true
         }).setView([-23.55052, -46.633308], 14);
@@ -660,67 +673,38 @@
         const markersLayer = L.layerGroup().addTo(map);
         let myCurrentLatLng = null;
         let allUsersData = {};
+        let allLocationsMap = {}; // Armazena localizações puras antes do filtro
 
-        // INICIALIZAÇÃO FIREBASE E AUTENTICAÇÃO
         try {
             const app = initializeApp(firebaseConfig);
             db = getDatabase(app);
             auth = getAuth(app);
             const googleProvider = new GoogleAuthProvider();
 
-            // Monitorar Status de Autenticação
-            onAuthStateChanged(auth, (user) => {
+            onAuthStateChanged(auth, async (user) => {
                 if (user) {
+                    document.getElementById('authScreen').style.display = 'none';
                     currentHeroUid = user.uid;
-                    // Verifica se o usuário já registrou uma Nametag
-                    const userRef = ref(db, 'users/' + currentHeroUid);
-                    get(userRef).then((snapshot) => {
-                        if (snapshot.exists() && snapshot.val().nametag) {
-                            currentHeroName = snapshot.val().nametag;
-                            completeLoginProcess();
-                        } else {
-                            // Se não tem nametag, abre a tela de registro
-                            document.getElementById('authScreen').style.display = 'none';
-                            document.getElementById('nametagScreen').style.display = 'flex';
-                        }
-                    });
+                    
+                    // Checar se o usuário já possui Nametag
+                    const nametagRef = ref(db, `users/${currentHeroUid}/nametag`);
+                    const snapshot = await get(nametagRef);
+                    
+                    if (snapshot.exists()) {
+                        currentHeroName = snapshot.val();
+                        document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName.toUpperCase()}`;
+                        startAppLogic();
+                    } else {
+                        // Exibir Modal de Nametag obrigatório
+                        document.getElementById('nametagModal').style.display = 'flex';
+                    }
                 } else {
-                    // Usuário Deslogado
                     document.getElementById('authScreen').style.display = 'flex';
-                    document.getElementById('nametagScreen').style.display = 'none';
-                    document.getElementById('profileScreen').style.display = 'none';
                     document.getElementById('statusMessage').innerText = 'SISTEMA BLOQUEADO';
                     trackingStarted = false;
-                    myFriendsList = [];
                 }
             });
 
-            // Funções de Registro e Nametag
-            window.saveNametag = async () => {
-                const nametag = document.getElementById('nametagInput').value.trim().toUpperCase();
-                if(!nametag) return showRetroModal("Digite uma Nametag válida!");
-                
-                await set(ref(db, 'users/' + currentHeroUid), { nametag: nametag });
-                currentHeroName = nametag;
-                
-                document.getElementById('nametagScreen').style.display = 'none';
-                completeLoginProcess();
-            };
-
-            function completeLoginProcess() {
-                document.getElementById('authScreen').style.display = 'none';
-                document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName}`;
-                
-                listenToMyFriends(); // Começa a escutar lista de aliados
-                
-                if (!trackingStarted) {
-                    startRealtimeLocationTracking();
-                    listenToAllUsersLocations();
-                    trackingStarted = true;
-                }
-            }
-
-            // Funções Globais de Autenticação
             window.loginEmail = () => {
                 const email = document.getElementById('emailInput').value;
                 const pass = document.getElementById('passwordInput').value;
@@ -733,7 +717,7 @@
                 const pass = document.getElementById('passwordInput').value;
                 if(!email || !pass) return showRetroModal("Preencha e-mail e senha para cadastro!");
                 createUserWithEmailAndPassword(auth, email, pass)
-                    .then(() => showRetroModal("Conta criada! Conclua com sua Nametag."))
+                    .then(() => showRetroModal("Conta criada com sucesso!"))
                     .catch(e => showRetroModal("Erro no cadastro: " + e.message));
             };
 
@@ -748,88 +732,138 @@
                 });
             };
 
-            // SISTEMA DE ALIADOS / PERFIL
-            window.openProfile = () => {
-                document.getElementById('myNametagDisplay').innerText = currentHeroName;
-                document.getElementById('profileScreen').style.display = 'flex';
+            // Lógica de Nametag (Registro)
+            window.saveNametag = async () => {
+                const nt = document.getElementById('nametagInput').value.trim().toUpperCase();
+                if(!nt) return showRetroModal("Digite uma nametag válida.");
+                
+                const ntRef = ref(db, `nametags/${nt}`);
+                const snap = await get(ntRef);
+                if (snap.exists()) {
+                    return showRetroModal("Nametag já em uso, tente outra!");
+                }
+                
+                await set(ref(db, `nametags/${nt}`), currentHeroUid);
+                await set(ref(db, `users/${currentHeroUid}/nametag`), nt);
+                
+                currentHeroName = nt;
+                document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName.toUpperCase()}`;
+                document.getElementById('nametagModal').style.display = 'none';
+                showRetroModal("Nametag registrada com sucesso!");
+                startAppLogic();
             };
 
-            window.closeProfile = () => {
-                document.getElementById('profileScreen').style.display = 'none';
+            // Envio de Convites e Perfil
+            window.sendInvite = async () => {
+                const targetNt = document.getElementById('addFriendInput').value.trim().toUpperCase();
+                if(!targetNt) return showRetroModal("Digite a nametag.");
+                if(targetNt === currentHeroName) return showRetroModal("Você não pode se convidar.");
+
+                const ntRef = ref(db, `nametags/${targetNt}`);
+                const snap = await get(ntRef);
+                if (!snap.exists()) return showRetroModal("Nametag não encontrada nos registros.");
+                
+                const targetUid = snap.val();
+                
+                if (window.myFriends[targetUid]) return showRetroModal("Este herói já é seu aliado.");
+                
+                await set(ref(db, `invites/${targetUid}/${currentHeroUid}`), currentHeroName);
+                showRetroModal(`Convite de aliança enviado para ${targetNt}!`);
+                document.getElementById('addFriendInput').value = '';
             };
 
-            window.addFriend = async () => {
-                const friendNametag = document.getElementById('friendNametagInput').value.trim().toUpperCase();
-                if(!friendNametag) return showRetroModal("Digite a Nametag do aliado!");
-                if(friendNametag === currentHeroName) return showRetroModal("Você não pode adicionar a si mesmo!");
-
-                const usersRef = ref(db, 'users');
-                get(usersRef).then(snapshot => {
-                    if(snapshot.exists()) {
-                        const users = snapshot.val();
-                        let foundUid = null;
-                        
-                        // Busca o UID correspondente a Nametag
-                        for(let uid in users) {
-                            if(users[uid].nametag && users[uid].nametag.toUpperCase() === friendNametag) {
-                                foundUid = uid;
-                                break;
-                            }
-                        }
-                        
-                        if(foundUid) {
-                            // Adição Mútua para que ambos se vejam no mapa automaticamente
-                            Promise.all([
-                                set(ref(db, 'users/' + currentHeroUid + '/friends/' + foundUid), friendNametag),
-                                set(ref(db, 'users/' + foundUid + '/friends/' + currentHeroUid), currentHeroName)
-                            ]).then(() => {
-                                showRetroModal(`Conexão mútua estabelecida com ${friendNametag}! Vocês já podem se ver no mapa.`);
-                                document.getElementById('friendNametagInput').value = '';
-                            });
-                        } else {
-                            showRetroModal("Nametag não encontrada nos registros!");
-                        }
-                    }
-                });
+            window.acceptInvite = async (senderUid, senderNametag) => {
+                await remove(ref(db, `invites/${currentHeroUid}/${senderUid}`));
+                await set(ref(db, `friends/${currentHeroUid}/${senderUid}`), senderNametag);
+                await set(ref(db, `friends/${senderUid}/${currentHeroUid}`), currentHeroName);
+                showRetroModal(`Aliança formada com ${senderNametag}!`);
             };
 
-            function listenToMyFriends() {
-                onValue(ref(db, 'users/' + currentHeroUid + '/friends'), (snapshot) => {
-                    myFriendsList = [];
-                    const listDiv = document.getElementById('friendsList');
-                    listDiv.innerHTML = '';
-                    
-                    if (snapshot.exists()) {
-                        const friendsData = snapshot.val();
-                        Object.keys(friendsData).forEach(fUid => {
-                            myFriendsList.push(fUid);
-                            listDiv.innerHTML += `<div style="padding: 6px; border-bottom: 1px solid #1b3a57;">• ${friendsData[fUid]}</div>`;
-                        });
-                    } else {
-                        listDiv.innerHTML = '<div style="padding: 6px; color: #4f6475;">Nenhum aliado conectado.</div>';
-                    }
-                    
-                    // Atualiza o mapa se ele já estiver rodando
-                    if (trackingStarted) listenToAllUsersLocations();
-                });
-            }
+            window.rejectInvite = async (senderUid) => {
+                await remove(ref(db, `invites/${currentHeroUid}/${senderUid}`));
+            };
 
         } catch (e) {
             console.warn("Erro ao configurar Firebase. Executando em modo de simulação local.");
             document.getElementById('authScreen').style.display = 'none';
             currentHeroUid = 'heroi_' + Math.random().toString(36).substring(2, 9);
-            currentHeroName = 'SIMULAÇÃO-' + Math.floor(Math.random() * 900 + 100);
-            document.getElementById('statusMessage').innerText = `SIMULAÇÃO: ${currentHeroName}`;
-            
-            // Funções fake para modo simulação não quebrar
-            window.openProfile = () => showRetroModal("O sistema de perfil está indisponível na simulação local.");
-            myFriendsList = ['mock_vigilante']; 
-
+            currentHeroName = 'SIMULADO-' + Math.floor(Math.random() * 900 + 100);
+            document.getElementById('statusMessage').innerText = `SIMULAÇÃO: ${currentHeroName.toUpperCase()}`;
+            window.myFriends = {'mock_vigilante': 'VIGILANTE-X'}; // Amigo simulado
             startRealtimeLocationTracking();
             listenToAllUsersLocations();
         }
+        
+        function startAppLogic() {
+            listenToFriendsAndInvites();
+            if (!trackingStarted) {
+                startRealtimeLocationTracking();
+                listenToAllUsersLocations();
+                trackingStarted = true;
+            }
+        }
 
-        // FUNÇÕES DE RASTREAMENTO E MAPA
+        // Observadores em Tempo Real para Perfil
+        function listenToFriendsAndInvites() {
+            if(!db) return;
+            
+            // Convites
+            onValue(ref(db, `invites/${currentHeroUid}`), (snap) => {
+                const invites = snap.val() || {};
+                renderInvitesUI(invites);
+            });
+
+            // Amigos
+            onValue(ref(db, `friends/${currentHeroUid}`), (snap) => {
+                window.myFriends = snap.val() || {};
+                renderFriendsUI();
+                filterAndRenderMarkers();
+            });
+        }
+
+        // Renderização da UI do Perfil
+        function renderInvitesUI(invites) {
+            const list = document.getElementById('invitesList');
+            list.innerHTML = '';
+            const uids = Object.keys(invites);
+            if(uids.length === 0) {
+                list.innerHTML = '<div style="color:#4f6475;">Nenhum convite.</div>';
+                return;
+            }
+            uids.forEach(uid => {
+                const nametag = invites[uid];
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <span>${nametag}</span>
+                    <div>
+                        <button class="pill-btn pill-green" onclick="acceptInvite('${uid}', '${nametag}')" style="padding:4px; font-size:6px; min-width:auto;">ACEITAR</button>
+                        <button class="pill-btn pill-red" onclick="rejectInvite('${uid}')" style="padding:4px; font-size:6px; min-width:auto;">X</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function renderFriendsUI() {
+            const list = document.getElementById('friendsList');
+            list.innerHTML = '';
+            const uids = Object.keys(window.myFriends);
+            if(uids.length === 0) {
+                list.innerHTML = '<div style="color:#4f6475;">Nenhum aliado no radar.</div>';
+                return;
+            }
+            uids.forEach(uid => {
+                const nametag = window.myFriends[uid];
+                const div = document.createElement('div');
+                div.style.padding = '4px 0';
+                div.style.borderBottom = '1px solid #1b3a57';
+                div.innerText = `> ${nametag}`;
+                list.appendChild(div);
+            });
+        }
+
+        // RASTREAMENTO E FILTRO
         function startRealtimeLocationTracking() {
             const gpsStatus = document.getElementById('gpsStatus');
             if ("geolocation" in navigator) {
@@ -862,23 +896,26 @@
             if (!db) return;
             const locationsRef = ref(db, 'locations/');
             onValue(locationsRef, (snapshot) => {
-                const data = snapshot.val();
-                markersLayer.clearLayers();
-                allUsersData = {};
-
-                if (data) {
-                    Object.keys(data).forEach(uid => {
-                        const user = data[uid];
-                        
-                        // FILTRO: Apenas renderiza no mapa você mesmo e os usuários que estão na sua lista de amigos
-                        if(uid === currentHeroUid || myFriendsList.includes(uid)) {
-                            allUsersData[uid] = user;
-                            renderMarker(uid, user.name, user.latitude, user.longitude, uid === currentHeroUid);
-                        }
-                    });
-                    updateSpiderMinimap();
-                }
+                allLocationsMap = snapshot.val() || {};
+                filterAndRenderMarkers();
             });
+        }
+
+        function filterAndRenderMarkers() {
+            markersLayer.clearLayers();
+            allUsersData = {};
+
+            if (allLocationsMap) {
+                Object.keys(allLocationsMap).forEach(uid => {
+                    // Adiciona se for o próprio usuário OU se estiver na lista de aliados
+                    if (uid === currentHeroUid || window.myFriends[uid]) {
+                        const user = allLocationsMap[uid];
+                        allUsersData[uid] = user;
+                        renderMarker(uid, user.name, user.latitude, user.longitude, uid === currentHeroUid);
+                    }
+                });
+                updateSpiderMinimap();
+            }
         }
 
         function renderMarker(uid, name, lat, lng, isSelf) {
@@ -902,17 +939,12 @@
         const simulatedUsers = {};
         function updateLocalMarkerSimulation(uid, name, lat, lng) {
             simulatedUsers[uid] = { name, latitude: lat, longitude: lng };
-            allUsersData = { ...simulatedUsers };
-            markersLayer.clearLayers();
-
-            renderMarker('mock_vigilante', 'Vigilante-X', lat + 0.005, lng + 0.005, false);
-            allUsersData['mock_vigilante'] = { name: 'Vigilante-X', latitude: lat + 0.005, longitude: lng + 0.005 };
-
-            Object.keys(simulatedUsers).forEach(id => {
-                const u = simulatedUsers[id];
-                renderMarker(id, u.name, u.latitude, u.longitude, id === currentHeroUid);
-            });
-            updateSpiderMinimap();
+            allLocationsMap = { ...simulatedUsers };
+            
+            // Adiciona aliado mockado sempre
+            allLocationsMap['mock_vigilante'] = { name: 'VIGILANTE-X', latitude: lat + 0.005, longitude: lng + 0.005 };
+            
+            filterAndRenderMarkers();
         }
 
         function updateSpiderMinimap() {
@@ -951,6 +983,17 @@
             } else {
                 showRetroModal("Aguardando sinal do GPS...");
             }
+        };
+
+        // Janelas do Perfil
+        window.openProfile = () => {
+            if (!currentHeroName) return showRetroModal("Autentique-se primeiro.");
+            document.getElementById('myNametagDisplay').innerText = `NAMETAG: ${currentHeroName}`;
+            document.getElementById('profileModal').style.display = 'flex';
+        };
+        
+        window.closeProfile = () => {
+            document.getElementById('profileModal').style.display = 'none';
         };
     </script>
 
