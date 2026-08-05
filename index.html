@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Tracker - Interface Retrô</title>
+    <!-- Importando fonte pixelada para o estilo autêntico -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b1329;
+            color: #d1f7ff;
+            font-family: 'Share Tech Mono', monospace;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Container principal simulando o dispositivo/tela */
+        .device-frame {
+            width: 100vw;
+            height: 100vh;
+            max-width: 900px;
+            max-height: 900px;
+            background: #4a90e2;
+            border: 8px solid #213865;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding: 12px;
+        }
+
+        /* Cabeçalho do Monitor */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .status-box {
+            background: #ffb75e;
+            color: #331a00;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            padding: 8px 12px;
+            border: 3px solid #7c3f00;
+            box-shadow: 3px 3px 0px #213865;
+            text-align: center;
+            flex-grow: 1;
+            margin: 0 10px;
+        }
+
+        .icon-badge {
+            background: #ffb75e;
+            border: 3px solid #7c3f00;
+            padding: 6px;
+            box-shadow: 3px 3px 0px #213865;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Área do Mapa Principal */
+        .map-viewport {
+            flex-grow: 1;
+            background: #0d1b2a;
+            border: 4px solid #1b3a57;
+            position: relative;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(27, 58, 87, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(27, 58, 87, 0.3) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .map-background-art {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle, rgba(0,243,255,0.1) 10%, transparent 60%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .radar-grid {
+            width: 300px;
+            height: 300px;
+            border: 2px dashed rgba(0, 243, 255, 0.2);
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        /* Marcadores de Usuários no Mapa */
+        .user-marker {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #ff4757;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px #ff4757;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .user-marker.self {
+            background: #2ed573;
+            box-shadow: 0 0 15px #2ed573;
+            z-index: 5;
+        }
+
+        .user-marker::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -18px;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            font-size: 8px;
+            padding: 2px 4px;
+            white-space: nowrap;
+            border-radius: 2px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Barra Lateral de Comandos (Esquerda) */
+        .side-toolbar {
+            position: absolute;
+            left: 18px;
+            top: 70px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .side-btn {
+            background: #ff6b6b;
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            padding: 8px;
+            border: 2px solid #8b0000;
+            box-shadow: 2px 2px 0px #213865;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* Painel de Controle Inferior */
+        .bottom-panel {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .retro-btn {
+            background: #ffdfba;
+            color: #4a2e00;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            padding: 10px 4px;
+            border: 3px solid #8c5821;
+            box-shadow: 3px 3px 0px #213865;
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.1s;
+        }
+
+        .retro-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #213865;
+        }
+
+        /* Mensagens de status do GPS */
+        .gps-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- INTERFACE PRINCIPAL -->
+    <div class="device-frame">
+        <!-- Barra Superior -->
+        <div class="top-bar">
+            <div class="icon-badge">🌐</div>
+            <div class="status-box" id="statusMessage">SISTEMA ATIVO - RASTREAMENTO DIRETO</div>
+            <div class="icon-badge">🕷️</div>
+        </div>
+
+        <!-- Menu Lateral Esquerdo -->
+        <div class="side-toolbar">
+            <button class="side-btn">0</button>
+            <button class="side-btn">S</button>
+            <button class="side-btn">T</button>
+        </div>
+
+        <!-- Tela do Mapa -->
+        <div class="map-viewport" id="mapViewport">
+            <div class="gps-status" id="gpsStatus">GPS: Buscando sinal...</div>
+            <div class="map-background-art">
+                <div class="radar-grid"></div>
+            </div>
+            <!-- Marcadores injetados dinamicamente -->
+            <div id="markersContainer"></div>
+        </div>
+
+        <!-- Painel de Controle Inferior -->
+        <div class="bottom-panel">
+            <button class="retro-btn" onclick="setTerrainMode()">TERRAIN</button>
+            <button class="retro-btn" onclick="toggleView3D()">3D VIEW</button>
+            <button class="retro-btn" onclick="centerOnMe()">CENTER LOC</button>
+            <button class="retro-btn" onclick="openChat()">CHAT</button>
+            <button class="retro-btn">PROF 1</button>
+            <button class="retro-btn">PROF 2</button>
+            <button class="retro-btn" onclick="openArchive()">ARCHIVE</button>
+            <button class="retro-btn" onclick="shareLocation()">SHARE</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs e Lógica de Localização -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // ==========================================
+        // CONFIGURAÇÃO DO FIREBASE (INSIRA SEUS DADOS)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY_AQUI",
+            authDomain: "SEU_AUTH_DOMAIN_AQUI",
+            databaseURL: "SEU_DATABASE_URL_AQUI",
+            projectId: "SEU_PROJECT_ID_AQUI",
+            storageBucket: "SEU_STORAGE_BUCKET_AQUI",
+            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+            appId: "SEU_APP_ID"
+        };
+
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getDatabase(app);
+        } catch (e) {
+            console.warn("Firebase não configurado. Executando em modo de simulação local.");
+        }
+
+        // Gera um ID e Nome de Herói aleatório instantâneo para esta sessão
+        const currentHeroUid = 'heroi_' + Math.random().toString(36).substring(2, 9);
+        const currentHeroName = 'Herói-' + Math.floor(Math.random() * 900 + 100);
+
+        document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName.toUpperCase()}`;
+
+        // Inicia rastreamento automático ao abrir a página
+        startRealtimeLocationTracking();
+        listenToAllUsersLocations();
+
+        function startRealtimeLocationTracking() {
+            const gpsStatus = document.getElementById('gpsStatus');
+            if ("geolocation" in navigator) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        gpsStatus.innerText = `GPS: ATIVO (${lat.toFixed(2)}, ${lng.toFixed(2)})`;
+
+                        if (db) {
+                            set(ref(db, 'locations/' + currentHeroUid), {
+                                name: currentHeroName,
+                                latitude: lat,
+                                longitude: lng,
+                                timestamp: Date.now()
+                            });
+                        } else {
+                            updateLocalMarkerSimulation(currentHeroUid, currentHeroName, lat, lng);
+                        }
+                    },
+                    (error) => {
+                        gpsStatus.innerText = "GPS: ERRO / SINAL PERDIDO";
+                        console.error(error);
+                    },
+                    { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+                );
+            } else {
+                gpsStatus.innerText = "GPS: NÃO SUPORTADO";
+            }
+        }
+
+        function listenToAllUsersLocations() {
+            if (!db) return;
+            const locationsRef = ref(db, 'locations/');
+            onValue(locationsRef, (snapshot) => {
+                const data = snapshot.val();
+                const container = document.getElementById('markersContainer');
+                container.innerHTML = '';
+
+                if (data) {
+                    Object.keys(data).forEach(uid => {
+                        const user = data[uid];
+                        renderMarker(uid, user.name, user.latitude, user.longitude, uid === currentHeroUid);
+                    });
+                }
+            });
+        }
+
+        function renderMarker(uid, name, lat, lng, isSelf) {
+            const container = document.getElementById('markersContainer');
+            const viewport = document.getElementById('mapViewport');
+            
+            const marker = document.createElement('div');
+            marker.className = `user-marker ${isSelf ? 'self' : ''}`;
+            marker.setAttribute('data-name', name);
+            marker.innerHTML = isSelf ? '⭐' : '📍';
+
+            const x = viewport.clientWidth / 2 + (lng * 1000) % (viewport.clientWidth - 50);
+            const y = viewport.clientHeight / 2 - (lat * 1000) % (viewport.clientHeight - 50);
+
+            marker.style.left = `${Math.max(20, Math.min(viewport.clientWidth - 20, x))}px`;
+            marker.style.top = `${Math.max(20, Math.min(viewport.clientHeight - 20, y))}px`;
+
+            container.appendChild(marker);
+        }
+
+        const simulatedUsers = {};
+        function updateLocalMarkerSimulation(uid, name, lat, lng) {
+            simulatedUsers[uid] = { name, latitude: lat, longitude: lng };
+            const container = document.getElementById('markersContainer');
+            container.innerHTML = '';
+
+            // Adiciona um ponto extra simulado para testes visuais sem Firebase
+            renderMarker('mock_vigilante', 'Vigilante-X', -23.55, -46.63, false);
+
+            Object.keys(simulatedUsers).forEach(id => {
+                const u = simulatedUsers[id];
+                renderMarker(id, u.name, u.latitude, u.longitude, id === currentHeroUid);
+            });
+        }
+    </script>
+
+    <!-- Funções dos Botões -->
+    <script>
+        function setTerrainMode() { alert("Modo de Terreno ativado!"); }
+        function toggleView3D() { alert("Alternando para visualização 3D..."); }
+        function centerOnMe() { alert("Centralizando na sua localização exata."); }
+        function openChat() { alert("Canal de chat aberto."); }
+        function openArchive() { alert("Arquivos abertos."); }
+        function shareLocation() { alert("Link copiado para compartilhamento!"); }
+    </script>
+</body>
+</html>
