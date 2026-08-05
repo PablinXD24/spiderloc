@@ -201,6 +201,56 @@
             box-shadow: 1px 1px 0px #213865;
         }
 
+        /* Mini-mapa Teia de Aranha Poligonal (Exato à referência) */
+        .spider-minimap {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            width: 115px;
+            height: 115px;
+            background: #040e1b;
+            clip-path: polygon(
+                30% 0%, 70% 0%, 
+                100% 30%, 100% 70%, 
+                70% 100%, 30% 100%, 
+                0% 70%, 0% 30%
+            );
+            border: 3px solid #1b3a57;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .spider-web-svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .spider-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #e74c3c;
+            border-radius: 50%;
+            box-shadow: 0 0 4px #e74c3c;
+        }
+
+        .spider-dot.self-dot {
+            background: #2ecc71;
+            width: 5px;
+            height: 5px;
+            box-shadow: 0 0 6px #2ecc71;
+            z-index: 2;
+        }
+
         /* Painel de Controle Inferior */
         .bottom-panel {
             margin-top: 10px;
@@ -512,6 +562,13 @@
                 font-size: 11px;
             }
 
+            .spider-minimap {
+                width: 95px;
+                height: 95px;
+                right: 10px;
+                bottom: 10px;
+            }
+
             .bottom-panel {
                 gap: 4px;
                 margin-top: 6px;
@@ -605,6 +662,28 @@
                 <button class="zoom-btn" onclick="zoomIn()">+</button>
                 <button class="zoom-btn" onclick="zoomOut()">-</button>
             </div>
+
+            <!-- Mini-mapa Teia de Aranha (Canto Direito Inferior) -->
+            <div class="spider-minimap" id="spiderMinimap" onclick="centerOnMe()" title="Radar Teia de Aranha">
+                <svg class="spider-web-svg" viewBox="0 0 100 100">
+                    <!-- Linhas radiais -->
+                    <line x1="50" y1="50" x2="50" y2="0" stroke="#1b3a57" stroke-width="0.8"/>
+                    <line x1="50" y1="50" x2="50" y2="100" stroke="#1b3a57" stroke-width="0.8"/>
+                    <line x1="50" y1="50" x2="0" y2="50" stroke="#1b3a57" stroke-width="0.8"/>
+                    <line x1="50" y1="50" x2="100" y2="50" stroke="#1b3a57" stroke-width="0.8"/>
+                    <line x1="50" y1="50" x2="15" y2="15" stroke="#1b3a57" stroke-width="0.8"/>
+                    <line x1="50" y1="50" x2="85" y2="85" stroke="#1b3a57" stroke-width="0.8"/>
+                    <line x1="50" y1="50" x2="15" y2="85" stroke="#1b3a57" stroke-width="0.8"/>
+                    <line x1="50" y1="50" x2="85" y2="15" stroke="#1b3a57" stroke-width="0.8"/>
+                    <!-- Polígonos concêntricos simulando a teia exata da referência -->
+                    <polygon points="50,40 58,42 60,50 58,58 50,60 42,58 40,50 42,42" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
+                    <polygon points="50,28 68,32 72,50 68,68 50,72 32,68 28,50 32,32" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
+                    <polygon points="50,15 78,22 85,50 78,78 50,85 22,78 15,50 22,22" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
+                    <polygon points="50,2 90,10 98,50 90,90 50,98 10,90 2,50 10,10" fill="none" stroke="#21486c" stroke-width="1.2"/>
+                </svg>
+                <!-- Marcadores dinâmicos no radar -->
+                <div class="spider-dot self-dot" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+            </div>
         </div>
 
         <!-- Painel Inferior com Avatares à Esquerda e Botões à Direita -->
@@ -664,8 +743,8 @@
             databaseURL: "SEU_DATABASE_URL_AQUI",
             projectId: "SEU_PROJECT_ID_AQUI",
             storageBucket: "SEU_STORAGE_BUCKET_AQUI",
-            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-            appId: "SEU_APP_ID"
+            messagingSenderId: "SUA_MESSAGING_SENDER_ID",
+            appId: "SUA_APP_ID"
         };
 
         let db;
@@ -711,7 +790,6 @@
             isTerrainActive = !isTerrainActive;
             if (isTerrainActive) {
                 map.removeLayer(darkTileLayer);
-                // Exemplo de camada de terreno/satélite alternativa funcional
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                     maxZoom: 19,
                 }).addTo(map);
@@ -723,6 +801,7 @@
 
         const markersLayer = L.layerGroup().addTo(map);
         let myCurrentLatLng = null;
+        let allUsersData = {};
 
         startRealtimeLocationTracking();
         listenToAllUsersLocations();
@@ -769,12 +848,15 @@
             onValue(locationsRef, (snapshot) => {
                 const data = snapshot.val();
                 markersLayer.clearLayers();
+                allUsersData = {};
 
                 if (data) {
                     Object.keys(data).forEach(uid => {
                         const user = data[uid];
+                        allUsersData[uid] = user;
                         renderMarker(uid, user.name, user.latitude, user.longitude, uid === currentHeroUid);
                     });
+                    updateSpiderMinimap();
                 }
             });
         }
@@ -806,13 +888,48 @@
         const simulatedUsers = {};
         function updateLocalMarkerSimulation(uid, name, lat, lng) {
             simulatedUsers[uid] = { name, latitude: lat, longitude: lng };
+            allUsersData = { ...simulatedUsers };
             markersLayer.clearLayers();
 
             renderMarker('mock_vigilante', 'Vigilante-X', lat + 0.005, lng + 0.005, false);
+            allUsersData['mock_vigilante'] = { name: 'Vigilante-X', latitude: lat + 0.005, longitude: lng + 0.005 };
 
             Object.keys(simulatedUsers).forEach(id => {
                 const u = simulatedUsers[id];
                 renderMarker(id, u.name, u.latitude, u.longitude, id === currentHeroUid);
+            });
+            updateSpiderMinimap();
+        }
+
+        function updateSpiderMinimap() {
+            const minimap = document.getElementById('spiderMinimap');
+            const existingDots = minimap.querySelectorAll('.spider-dot:not(.self-dot)');
+            existingDots.forEach(d => d.remove());
+
+            if (!myCurrentLatLng) return;
+
+            const [myLat, myLng] = myCurrentLatLng;
+            const scaleFactor = 3500;
+
+            Object.keys(allUsersData).forEach(uid => {
+                if (uid === currentHeroUid) return;
+                const user = allUsersData[uid];
+                
+                const dLat = (user.latitude - myLat) * scaleFactor;
+                const dLng = (user.longitude - myLng) * scaleFactor;
+
+                let posX = 50 + dLng;
+                let posY = 50 - dLat;
+
+                posX = Math.max(8, Math.min(92, posX));
+                posY = Math.max(8, Math.min(92, posY));
+
+                const dot = document.createElement('div');
+                dot.className = 'spider-dot';
+                dot.style.left = `${posX}%`;
+                dot.style.top = `${posY}%`;
+                dot.title = user.name;
+                minimap.appendChild(dot);
             });
         }
 
