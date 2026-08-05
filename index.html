@@ -159,20 +159,28 @@
         }
 
         .side-btn {
-            background: #ff6b6b;
-            color: #fff;
+            background: #ffb75e;
+            color: #4a2e00;
             font-family: 'Press Start 2P', monospace;
             font-size: 8px;
-            padding: 8px;
-            border: 2px solid #8b0000;
+            width: 32px;
+            height: 32px;
+            border: 3px solid #8c5821;
             box-shadow: 2px 2px 0px #213865;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
         }
 
         .side-btn.btn-logout {
             background: #1b3a57;
+            color: #fff;
             border: 2px solid #0a192f;
+            width: auto;
+            height: auto;
+            padding: 8px;
         }
 
         /* Controles de Zoom Estilizados Retrô */
@@ -342,7 +350,6 @@
         .pill-outline:active { transform: none !important; box-shadow: none !important; }
         .pill-orange { --color: #3b2300; --bg-color: #f39c12; color: var(--color); background-color: var(--bg-color); }
         
-        /* 3D VIEW ATIVO (Desativado o visual desativado conforme solicitado) */
         .pill-disabled { --color: #ffffff; --bg-color: #2980b9; color: var(--color); background-color: var(--bg-color); cursor: pointer; box-shadow: 0px 3px #1a2327, 0px -3px #1a2327, 3px 0px #1a2327, -3px 0px #1a2327, 1px 2px #1a2327, -1px 2px #1a2327, 1px -2px #1a2327, -1px -2px #1a2327, 2px 1px #1a2327, -2px 1px #1a2327, 2px -1px #1a2327, -2px -1px #1a2327; }
         .pill-disabled:active { transform: translateY(3px); }
 
@@ -377,7 +384,7 @@
 
         #authScreen {
             z-index: 3000;
-            display: none; /* Ocultado por padrão para evitar piscar tela de login ao atualizar com sessão ativa */
+            display: none;
         }
 
         #nametagSetupModal {
@@ -493,7 +500,7 @@
             .top-bar { margin-bottom: 6px; }
             .status-box { font-size: 8px; padding: 6px 8px; }
             .side-toolbar { left: 10px; top: 55px; }
-            .side-btn { padding: 6px; font-size: 7px; }
+            .side-btn { width: 30px; height: 30px; font-size: 7px; }
             .retro-zoom-control { right: 8px; bottom: 120px; }
             .zoom-btn { width: 34px; height: 34px; font-size: 11px; }
             .spider-minimap { width: 95px; height: 95px; right: 10px; bottom: 10px; }
@@ -597,11 +604,12 @@
             <div class="icon-badge">🕷️</div>
         </div>
 
-        <!-- Menu Lateral Esquerdo -->
+        <!-- Menu Lateral Esquerdo (N, S, L, O na ordem correta das direções) -->
         <div class="side-toolbar">
-            <button class="side-btn">N</button>
-            <button class="side-btn">O</button>
-            <button class="side-btn">S</button>
+            <button class="side-btn" title="Norte">N</button>
+            <button class="side-btn" title="Sul">S</button>
+            <button class="side-btn" title="Leste">L</button>
+            <button class="side-btn" title="Oeste">O</button>
             <button class="side-btn btn-logout" onclick="logoutApp()" title="Sair da Conta">X</button>
         </div>
 
@@ -698,7 +706,6 @@
         let trackingStarted = false;
         let hasCenteredToMyLocation = false;
 
-        // Inicializa o Mapa Leaflet sem coordenadas estáticas arbitrárias
         const map = L.map('leafletMap', {
             zoomControl: false, attributionControl: false, tap: true, dragging: true, touchZoom: true, scrollWheelZoom: true
         }).setView([0, 0], 2);
@@ -731,7 +738,6 @@
             auth = getAuth(app);
             const googleProvider = new GoogleAuthProvider();
 
-            // Monitorar Status de Autenticação com persistência imediata
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     currentHeroUid = user.uid;
@@ -758,7 +764,6 @@
                     });
 
                 } else {
-                    // Só exibe a tela de login se realmente não houver usuário autenticado logado
                     document.getElementById('authScreen').style.display = 'flex';
                     document.getElementById('nametagSetupModal').style.display = 'none';
                     document.getElementById('statusMessage').innerText = 'SISTEMA BLOQUEADO';
@@ -939,7 +944,6 @@
                         myCurrentLatLng = [lat, lng];
                         gpsStatus.innerText = `GPS: ATIVO`;
 
-                        // Centraliza imediatamente onde o usuário está na primeira leitura do GPS
                         if (!hasCenteredToMyLocation) {
                             map.setView([lat, lng], 16, { animate: false });
                             hasCenteredToMyLocation = true;
@@ -1159,7 +1163,6 @@
             showRetroModal(`Perfil de Rastreamento ${profNum} (${profileNames[profNum] || 'Padrão'}) ativado!`); 
         }
         
-        // Função de 3D View com alerta ajustado (removido status de inativo restrito)
         function toggleView3D() { 
             showRetroModal("Módulo 3D View acionado. Renderização isométrica pronta."); 
         }
