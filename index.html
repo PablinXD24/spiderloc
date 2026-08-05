@@ -105,6 +105,38 @@
             z-index: 1;
         }
 
+        /* Camisa de Rosa dos Ventos / Direções (N, S, L, O) fixas no viewport girando de acordo com a rotação */
+        .compass-rose-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .compass-indicator {
+            position: absolute;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            background: rgba(11, 19, 41, 0.8);
+            border: 2px solid #ffb75e;
+            color: #ffb75e;
+            border-radius: 4px;
+            box-shadow: 0 0 8px rgba(255, 183, 94, 0.5);
+            transform-origin: center;
+            transition: transform 0.1s linear;
+        }
+
+        #compN { top: 12px; left: 50%; transform: translateX(-50%); border-color: #ff4757; color: #ff4757; }
+        #compS { bottom: 12px; left: 50%; transform: translateX(-50%); }
+        #compL { right: 12px; top: 50%; transform: translateY(-50%); }
+        #compO { left: 12px; top: 50%; transform: translateY(-50%); }
+
         .leaflet-tile {
             filter: brightness(0.6) invert(1) contrast(1.5) hue-rotate(180deg) saturate(0.8) !important;
         }
@@ -146,38 +178,6 @@
             border-radius: 2px;
             font-family: 'Share Tech Mono', monospace;
         }
-
-        /* Indicador de Bússola no Mapa (N, S, L, O seguindo a rotação do usuário) */
-        .map-compass-indicator {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 45px;
-            height: 45px;
-            background: rgba(11, 25, 44, 0.85);
-            border: 2px solid #ffb75e;
-            border-radius: 50%;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 8px rgba(0,0,0,0.6);
-            pointer-events: none;
-        }
-
-        .compass-rose {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 8px;
-            font-weight: bold;
-        }
-
-        .compass-n { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); color: #ff4757; }
-        .compass-s { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); color: #d1f7ff; }
-        .compass-l { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); color: #d1f7ff; }
-        .compass-o { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); color: #d1f7ff; }
 
         /* Barra Lateral de Comandos (Esquerda) */
         .side-toolbar {
@@ -638,18 +638,16 @@
 
         <!-- Tela do Mapa Funcional (Leaflet) -->
         <div class="map-viewport">
+            <!-- Indicadores Cardinais Dinâmicos (Bússola) -->
+            <div class="compass-rose-container" id="compassContainer">
+                <div class="compass-indicator" id="compN">N</div>
+                <div class="compass-indicator" id="compS">S</div>
+                <div class="compass-indicator" id="compL">L</div>
+                <div class="compass-indicator" id="compO">O</div>
+            </div>
+
             <div class="gps-status" id="gpsStatus">GPS: Aguardando...</div>
             <div id="leafletMap"></div>
-
-            <!-- Indicador de Bússola no Mapa (Gira com o usuário) -->
-            <div class="map-compass-indicator">
-                <div class="compass-rose" id="compassRose">
-                    <span class="compass-n">N</span>
-                    <span class="compass-s">S</span>
-                    <span class="compass-l">L</span>
-                    <span class="compass-o">O</span>
-                </div>
-            </div>
 
             <!-- Controles de Zoom Personalizados Retrô -->
             <div class="retro-zoom-control">
@@ -739,10 +737,44 @@
         let trackingStarted = false;
         let hasCenteredToMyLocation = false;
 
-        // Inicializa o Mapa Leaflet
+        // Inicializa o Mapa Leaflet sem coordenadas estáticas arbitrárias
         const map = L.map('leafletMap', {
             zoomControl: false, attributionControl: false, tap: true, dragging: true, touchZoom: true, scrollWheelZoom: true
         }).setView([0, 0], 2);
+
+        // Sistema de Giro de Bússola / Direção do Usuário
+        let userHeading = 0;
+
+        function updateCompassDisplay(heading) {
+            userHeading = heading || 0;
+            // Atualiza as letras cardinais para rodar de acordo com a direção em que o usuário está apontando
+            const compN = document.getElementById('compN');
+            const compS = document.getElementById('compS');
+            const compL = document.getElementById('compL');
+            const compO = document.getElementById('compO');
+
+            if (compN && compS && compL && compO) {
+                // Rotaciona as letras mantendo o layout da bússola fixa na direção correta
+                const rot = -userHeading;
+                compN.style.transform = `translateX(-50%) rotate(${userHeading}deg)`;
+                compS.style.transform = `translateX(-50%) rotate(${userHeading}deg)`;
+                compL.style.transform = `translateY(-50%) rotate(${userHeading}deg)`;
+                compO.style.transform = `translateY(-50%) rotate(${userHeading}deg)`;
+            }
+        }
+
+        // Tenta capturar a orientação do dispositivo (bússola física do celular)
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (event) => {
+                let heading = event.alpha; // Direção da bússola em graus (0-360)
+                if (event.webkitCompassHeading) {
+                    heading = event.webkitCompassHeading; // Suporte específico para iOS
+                }
+                if (heading !== null && heading !== undefined) {
+                    updateCompassDisplay(heading);
+                }
+            }, true);
+        }
 
         window.zoomIn = () => map.zoomIn();
         window.zoomOut = () => map.zoomOut();
@@ -766,22 +798,13 @@
         let allUsersData = {};
         let myConnections = {};
 
-        // Sistema de Bússola orientada pelo usuário
-        function updateCompassRotation(heading) {
-            const compassRose = document.getElementById('compassRose');
-            if (compassRose && heading !== null && !isNaN(heading)) {
-                // Rotaciona a rosa dos ventos no sentido oposto ao movimento/heading do usuário para manter o Norte real correto no topo,
-                // ou rotaciona conforme a direção para o comportamento de bússola estilo mapa de navegação.
-                compassRose.style.transform = `rotate(${-heading}deg)`;
-            }
-        }
-
         try {
             const app = initializeApp(firebaseConfig);
             db = getDatabase(app);
             auth = getAuth(app);
             const googleProvider = new GoogleAuthProvider();
 
+            // Monitorar Status de Autenticação com persistência imediata
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     currentHeroUid = user.uid;
@@ -863,7 +886,7 @@
             };
 
             window.registerEmail = () => {
-                const email = document.getElementById('emailInput').value;
+                const email = document.getElementById('emailInput'].value;
                 const pass = document.getElementById('passwordInput').value;
                 if(!email || !pass) return showRetroModal("Preencha e-mail e senha para cadastro!");
                 createUserWithEmailAndPassword(auth, email, pass)
@@ -978,6 +1001,9 @@
             startRealtimeLocationTracking();
         }
 
+        let lastLat = null;
+        let lastLng = null;
+
         function startRealtimeLocationTracking() {
             const gpsStatus = document.getElementById('gpsStatus');
             if ("geolocation" in navigator) {
@@ -985,15 +1011,21 @@
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
-                        const heading = position.coords.heading;
-                        
                         myCurrentLatLng = [lat, lng];
                         gpsStatus.innerText = `GPS: ATIVO`;
 
-                        // Atualiza orientação da bússola com base no movimento do usuário se disponível
-                        if (heading !== null && heading !== undefined) {
-                            updateCompassRotation(heading);
+                        // Calcula a direção do movimento se houver coordenadas anteriores (fallback para bússola via GPS)
+                        if (lastLat !== null && lastLng !== null) {
+                            const dLat = lat - lastLat;
+                            const dLng = lng - lastLng;
+                            if (Math.abs(dLat) > 0.00001 || Math.abs(dLng) > 0.00001) {
+                                let angle = Math.atan2(dLng, dLat) * (180 / Math.PI);
+                                if (angle < 0) angle += 360;
+                                updateCompassDisplay(angle);
+                            }
                         }
+                        lastLat = lat;
+                        lastLng = lng;
 
                         if (!hasCenteredToMyLocation) {
                             map.setView([lat, lng], 16, { animate: false });
@@ -1018,19 +1050,6 @@
                     },
                     { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
                 );
-
-                // Suporte adicional para dispositivos móveis com orientação de bússola via DeviceOrientationEvent
-                if (window.DeviceOrientationEvent) {
-                    window.addEventListener('deviceorientation', (event) => {
-                        let compassHeading = event.alpha;
-                        if (event.webkitCompassHeading) {
-                            compassHeading = event.webkitCompassHeading; // Específico para iOS Safari
-                        }
-                        if (compassHeading !== null && compassHeading !== undefined) {
-                            updateCompassRotation(compassHeading);
-                        }
-                    }, true);
-                }
             }
         }
 
