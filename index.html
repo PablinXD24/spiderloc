@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hero Tracker - Interface Retrô</title>
     <!-- Importando fonte pixelada para o estilo autêntico -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -12,13 +12,14 @@
             margin: 0;
             padding: 0;
             user-select: none;
+            -webkit-touch-callout: none;
         }
 
         body {
             background-color: #0b1329;
             color: #d1f7ff;
             font-family: 'Share Tech Mono', monospace;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -61,6 +62,9 @@
             text-align: center;
             flex-grow: 1;
             margin: 0 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .icon-badge {
@@ -72,75 +76,101 @@
             align-items: center;
             justify-content: center;
             font-size: 14px;
+            flex-shrink: 0;
         }
 
-        /* Área do Mapa Principal */
+        /* Área do Mapa Principal com suporte a Exame/Zoom/Pan */
         .map-viewport {
             flex-grow: 1;
             background: #0d1b2a;
             border: 4px solid #1b3a57;
             position: relative;
             overflow: hidden;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .map-viewport:active {
+            cursor: grabbing;
+        }
+
+        /* Camada interna estendida que simula o mapa navegável */
+        .map-canvas-layer {
+            position: absolute;
+            width: 3000px;
+            height: 3000px;
+            top: -1000px;
+            left: -1000px;
+            background-color: #0b192c;
+            /* Textura visual tática de mapa em grid */
             background-image: 
-                linear-gradient(rgba(27, 58, 87, 0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(27, 58, 87, 0.3) 1px, transparent 1px);
-            background-size: 20px 20px;
+                linear-gradient(rgba(0, 243, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(rgba(41, 128, 185, 0.15) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(41, 128, 185, 0.15) 2px, transparent 2px);
+            background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+            transform-origin: center center;
+            will-change: transform;
         }
 
-        .map-background-art {
+        /* Elementos visuais de referência geográfica no mapa */
+        .map-landmark {
             position: absolute;
-            width: 200%;
-            height: 200%;
-            top: -50%;
-            left: -50%;
-            background: radial-gradient(circle, rgba(0,243,255,0.1) 10%, transparent 60%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .radar-grid {
-            width: 300px;
-            height: 300px;
-            border: 2px dashed rgba(0, 243, 255, 0.2);
+            border: 2px dashed rgba(0, 243, 255, 0.15);
             border-radius: 50%;
-            position: absolute;
+            pointer-events: none;
+        }
+
+        .landmark-center {
+            width: 800px;
+            height: 800px;
+            top: 1100px;
+            left: 1100px;
+        }
+
+        .landmark-outer {
+            width: 1800px;
+            height: 1800px;
+            top: 600px;
+            left: 600px;
+            border-color: rgba(255, 183, 94, 0.1);
         }
 
         /* Marcadores de Usuários no Mapa */
         .user-marker {
             position: absolute;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             background: #ff4757;
             border: 2px solid #fff;
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px #ff4757;
+            box-shadow: 0 0 12px #ff4757;
             cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 11px;
+            z-index: 5;
         }
 
         .user-marker.self {
             background: #2ed573;
-            box-shadow: 0 0 15px #2ed573;
-            z-index: 5;
+            box-shadow: 0 0 18px #2ed573;
+            z-index: 6;
         }
 
         .user-marker::after {
             content: attr(data-name);
             position: absolute;
-            bottom: -18px;
-            background: rgba(0,0,0,0.8);
-            color: #fff;
-            font-size: 8px;
-            padding: 2px 4px;
+            bottom: -20px;
+            background: rgba(0,0,0,0.85);
+            color: #d1f7ff;
+            font-size: 9px;
+            padding: 2px 5px;
             white-space: nowrap;
-            border-radius: 2px;
+            border: 1px solid #1b3a57;
+            border-radius: 3px;
             font-family: 'Share Tech Mono', monospace;
         }
 
@@ -165,6 +195,32 @@
             box-shadow: 2px 2px 0px #213865;
             cursor: pointer;
             text-align: center;
+        }
+
+        /* Controles de Zoom Flutuantes no Mapa */
+        .map-zoom-controls {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 10;
+        }
+
+        .zoom-btn {
+            background: #ffb75e;
+            color: #331a00;
+            font-family: 'Press Start 2P', monospace;
+            width: 32px;
+            height: 32px;
+            border: 2px solid #7c3f00;
+            box-shadow: 2px 2px 0px #213865;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Painel de Controle Inferior */
@@ -199,10 +255,70 @@
             top: 10px;
             right: 10px;
             font-size: 10px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.75);
+            color: #d1f7ff;
             padding: 4px 8px;
             border-radius: 4px;
+            border: 1px solid #1b3a57;
             z-index: 10;
+        }
+
+        /* RESPONSIVIDADE ESPECIAL PARA MOBILE */
+        @media (max-width: 768px) {
+            body {
+                align-items: flex-start;
+                height: 100vh;
+                height: 100dvh;
+            }
+
+            .device-frame {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                max-width: none;
+                max-height: none;
+                border: none;
+                box-shadow: none;
+                padding: 6px;
+            }
+
+            .top-bar {
+                margin-bottom: 6px;
+            }
+
+            .status-box {
+                font-size: 8px;
+                padding: 6px 8px;
+            }
+
+            .side-toolbar {
+                left: 10px;
+                top: 55px;
+            }
+
+            .side-btn {
+                padding: 6px;
+                font-size: 7px;
+            }
+
+            .bottom-panel {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 5px;
+                margin-top: 6px;
+            }
+
+            .retro-btn {
+                font-size: 7px;
+                padding: 8px 2px;
+                border-width: 2px;
+                box-shadow: 2px 2px 0px #213865;
+            }
+
+            .gps-status {
+                font-size: 8px;
+                top: 6px;
+                right: 6px;
+            }
         }
     </style>
 </head>
@@ -224,14 +340,24 @@
             <button class="side-btn">T</button>
         </div>
 
-        <!-- Tela do Mapa -->
+        <!-- Tela do Mapa com suporte a exames (Pan & Zoom) -->
         <div class="map-viewport" id="mapViewport">
             <div class="gps-status" id="gpsStatus">GPS: Buscando sinal...</div>
-            <div class="map-background-art">
-                <div class="radar-grid"></div>
+            
+            <div class="map-canvas-layer" id="mapCanvasLayer">
+                <!-- Referências visuais do mapa tático -->
+                <div class="map-landmark landmark-center"></div>
+                <div class="map-landmark landmark-outer"></div>
+                
+                <!-- Marcadores injetados dinamicamente no centro exato do canvas -->
+                <div id="markersContainer"></div>
             </div>
-            <!-- Marcadores injetados dinamicamente -->
-            <div id="markersContainer"></div>
+
+            <!-- Controles de Zoom na interface -->
+            <div class="map-zoom-controls">
+                <button class="zoom-btn" onclick="zoomIn()">+</button>
+                <button class="zoom-btn" onclick="zoomOut()">-</button>
+            </div>
         </div>
 
         <!-- Painel de Controle Inferior -->
@@ -273,13 +399,11 @@
             console.warn("Firebase não configurado. Executando em modo de simulação local.");
         }
 
-        // Gera um ID e Nome de Herói aleatório instantâneo para esta sessão
         const currentHeroUid = 'heroi_' + Math.random().toString(36).substring(2, 9);
         const currentHeroName = 'Herói-' + Math.floor(Math.random() * 900 + 100);
 
         document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName.toUpperCase()}`;
 
-        // Inicia rastreamento automático ao abrir a página
         startRealtimeLocationTracking();
         listenToAllUsersLocations();
 
@@ -290,7 +414,7 @@
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
-                        gpsStatus.innerText = `GPS: ATIVO (${lat.toFixed(2)}, ${lng.toFixed(2)})`;
+                        gpsStatus.innerText = `GPS: ATIVO`;
 
                         if (db) {
                             set(ref(db, 'locations/' + currentHeroUid), {
@@ -304,13 +428,13 @@
                         }
                     },
                     (error) => {
-                        gpsStatus.innerText = "GPS: ERRO / SINAL PERDIDO";
+                        gpsStatus.innerText = "GPS: ERRO";
                         console.error(error);
                     },
                     { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
                 );
             } else {
-                gpsStatus.innerText = "GPS: NÃO SUPORTADO";
+                gpsStatus.innerText = "GPS: INDISPONÍVEL";
             }
         }
 
@@ -333,18 +457,22 @@
 
         function renderMarker(uid, name, lat, lng, isSelf) {
             const container = document.getElementById('markersContainer');
-            const viewport = document.getElementById('mapViewport');
             
             const marker = document.createElement('div');
             marker.className = `user-marker ${isSelf ? 'self' : ''}`;
             marker.setAttribute('data-name', name);
             marker.innerHTML = isSelf ? '⭐' : '📍';
 
-            const x = viewport.clientWidth / 2 + (lng * 1000) % (viewport.clientWidth - 50);
-            const y = viewport.clientHeight / 2 - (lat * 1000) % (viewport.clientHeight - 50);
+            // Posiciona os marcadores tendo como referência o centro exato da grande camada de mapa (1500px, 1500px)
+            const centerX = 1500;
+            const centerY = 1500;
+            
+            // Fator de escala para coordenadas relativas ao mapa
+            const offsetX = (lng % 1) * 400;
+            const offsetY = (lat % 1) * 400;
 
-            marker.style.left = `${Math.max(20, Math.min(viewport.clientWidth - 20, x))}px`;
-            marker.style.top = `${Math.max(20, Math.min(viewport.clientHeight - 20, y))}px`;
+            marker.style.left = `${centerX + offsetX}px`;
+            marker.style.top = `${centerY + offsetY}px`;
 
             container.appendChild(marker);
         }
@@ -355,8 +483,9 @@
             const container = document.getElementById('markersContainer');
             container.innerHTML = '';
 
-            // Adiciona um ponto extra simulado para testes visuais sem Firebase
+            // Adiciona pontos de referência estáticos/simulados no mapa
             renderMarker('mock_vigilante', 'Vigilante-X', -23.55, -46.63, false);
+            renderMarker('mock_base', 'Base Central', 0, 0, false);
 
             Object.keys(simulatedUsers).forEach(id => {
                 const u = simulatedUsers[id];
@@ -365,11 +494,89 @@
         }
     </script>
 
-    <!-- Funções dos Botões -->
+    <!-- Controle de Pan, Zoom e Navegação Estilo Mapa Digital -->
     <script>
+        const viewport = document.getElementById('mapViewport');
+        const canvasLayer = document.getElementById('mapCanvasLayer');
+
+        let scale = 1;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        function updateTransform() {
+            canvasLayer.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        }
+
+        // Eventos de Arrastar (Mouse e Touch para Mobile)
+        viewport.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        viewport.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - panX;
+                startY = e.touches[0].clientY - panY;
+            }
+        });
+
+        viewport.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            panX = e.touches[0].clientX - startX;
+            panY = e.touches[0].clientY - startY;
+            updateTransform();
+        });
+
+        viewport.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // Zoom por Botões e Scroll do Mouse
+        function zoomIn() {
+            scale = Math.min(scale + 0.25, 3.0);
+            updateTransform();
+        }
+
+        function zoomOut() {
+            scale = Math.max(scale - 0.25, 0.5);
+            updateTransform();
+        }
+
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        }, { passive: false });
+
+        // Funções Originais dos Botões Mantidas
         function setTerrainMode() { alert("Modo de Terreno ativado!"); }
         function toggleView3D() { alert("Alternando para visualização 3D..."); }
-        function centerOnMe() { alert("Centralizando na sua localização exata."); }
+        function centerOnMe() { 
+            panX = 0; 
+            panY = 0; 
+            scale = 1; 
+            updateTransform();
+            alert("Centralizando na sua localização exata."); 
+        }
         function openChat() { alert("Canal de chat aberto."); }
         function openArchive() { alert("Arquivos abertos."); }
         function shareLocation() { alert("Link copiado para compartilhamento!"); }
