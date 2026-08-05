@@ -170,6 +170,11 @@
             text-align: center;
         }
 
+        .side-btn.btn-logout {
+            background: #1b3a57;
+            border: 2px solid #0a192f;
+        }
+
         /* Controles de Zoom Estilizados Retrô */
         .retro-zoom-control {
             position: absolute;
@@ -196,12 +201,12 @@
             justify-content: center;
         }
 
-        .zoom-btn:active {
+        .zoom-btn:active, .side-btn:active {
             transform: translate(1px, 1px);
             box-shadow: 1px 1px 0px #213865;
         }
 
-        /* Mini-mapa Teia de Aranha Poligonal (Exato à referência) */
+        /* Mini-mapa Teia de Aranha Poligonal */
         .spider-minimap {
             position: absolute;
             right: 16px;
@@ -305,9 +310,7 @@
             flex-grow: 1;
         }
 
-        /* ========================================================
-           ESTILO DE PIXEL COM CANTOS ARREDONDADOS/PIXEL SOZINHO NOS CANTOS
-           ======================================================== */
+        /* ESTILO DE PIXEL COM CANTOS ARREDONDADOS/PIXEL SOZINHO NOS CANTOS */
         .pill-btn {
             font-family: 'Press Start 2P', monospace;
             font-size: 7px;
@@ -320,121 +323,30 @@
             white-space: nowrap;
             letter-spacing: -0.5px;
             box-shadow:
-                0px 3px black,
-                0px -3px black,
-                3px 0px black,
-                -3px 0px black,
-                1px 2px black,
-                -1px 2px black,
-                1px -2px black,
-                -1px -2px black,
-                2px 1px black,
-                -2px 1px black,
-                2px -1px black,
-                -2px -1px black,
-                0px 6px #00000038,
-                3px 3px #00000038,
-                -3px 3px #00000038,
+                0px 3px black, 0px -3px black, 3px 0px black, -3px 0px black,
+                1px 2px black, -1px 2px black, 1px -2px black, -1px -2px black,
+                2px 1px black, -2px 1px black, 2px -1px black, -2px -1px black,
+                0px 6px #00000038, 3px 3px #00000038, -3px 3px #00000038,
                 inset 0px 3px #ffffff36;
         }
 
         .pill-btn:active {
             transform: translateY(3px);
             box-shadow:
-                0px 3px black,
-                0px -3px black,
-                3px 0px black,
-                -3px 0px black,
-                1px 2px black,
-                -1px 2px black,
-                1px -2px black,
-                -1px -2px black,
-                2px 1px black,
-                -2px 1px black,
-                2px -1px black,
-                -2px -1px black,
+                0px 3px black, 0px -3px black, 3px 0px black, -3px 0px black,
+                1px 2px black, -1px 2px black, 1px -2px black, -1px -2px black,
+                2px 1px black, -2px 1px black, 2px -1px black, -2px -1px black,
                 inset 0px 3px #00000038;
         }
 
-        /* Cores aplicadas ao estilo Pixel */
-        .pill-green-dark {
-            --color: #ffffff;
-            --bg-color: #27ae60;
-            color: var(--color);
-            background-color: var(--bg-color);
-        }
-
-        .pill-green {
-            --color: #0b381e;
-            --bg-color: #2ecc71;
-            color: var(--color);
-            background-color: var(--bg-color);
-        }
-
-        .pill-red {
-            --color: #ffffff;
-            --bg-color: #e74c3c;
-            color: var(--color);
-            background-color: var(--bg-color);
-        }
-
-        .pill-outline {
-            --color: transparent;
-            --bg-color: transparent;
-            color: var(--color);
-            background-color: var(--bg-color);
-            box-shadow: none !important;
-            cursor: default;
-            border: 0 !important;
-        }
-        .pill-outline:active {
-            transform: none !important;
-            box-shadow: none !important;
-        }
-
-        .pill-orange {
-            --color: #3b2300;
-            --bg-color: #f39c12;
-            color: var(--color);
-            background-color: var(--bg-color);
-        }
-
-        .pill-disabled {
-            --color: #b0bec5;
-            --bg-color: #4f6475;
-            color: var(--color);
-            background-color: var(--bg-color);
-            cursor: not-allowed;
-            box-shadow:
-                0px 3px #1a2327,
-                0px -3px #1a2327,
-                3px 0px #1a2327,
-                -3px 0px #1a2327,
-                1px 2px #1a2327,
-                -1px 2px #1a2327,
-                1px -2px #1a2327,
-                -1px -2px #1a2327,
-                2px 1px #1a2327,
-                -2px 1px #1a2327,
-                2px -1px #1a2327,
-                -2px -1px #1a2327;
-        }
-        .pill-disabled:active {
-            transform: none;
-            box-shadow:
-                0px 3px #1a2327,
-                0px -3px #1a2327,
-                3px 0px #1a2327,
-                -3px 0px #1a2327,
-                1px 2px #1a2327,
-                -1px 2px #1a2327,
-                1px -2px #1a2327,
-                -1px -2px #1a2327,
-                2px 1px #1a2327,
-                -2px 1px #1a2327,
-                2px -1px #1a2327,
-                -2px -1px #1a2327;
-        }
+        .pill-green-dark { --color: #ffffff; --bg-color: #27ae60; color: var(--color); background-color: var(--bg-color); }
+        .pill-green { --color: #0b381e; --bg-color: #2ecc71; color: var(--color); background-color: var(--bg-color); }
+        .pill-red { --color: #ffffff; --bg-color: #e74c3c; color: var(--color); background-color: var(--bg-color); }
+        .pill-outline { --color: transparent; --bg-color: transparent; color: var(--color); background-color: var(--bg-color); box-shadow: none !important; cursor: default; border: 0 !important; }
+        .pill-outline:active { transform: none !important; box-shadow: none !important; }
+        .pill-orange { --color: #3b2300; --bg-color: #f39c12; color: var(--color); background-color: var(--bg-color); }
+        .pill-disabled { --color: #b0bec5; --bg-color: #4f6475; color: var(--color); background-color: var(--bg-color); cursor: not-allowed; box-shadow: 0px 3px #1a2327, 0px -3px #1a2327, 3px 0px #1a2327, -3px 0px #1a2327, 1px 2px #1a2327, -1px 2px #1a2327, 1px -2px #1a2327, -1px -2px #1a2327, 2px 1px #1a2327, -2px 1px #1a2327, 2px -1px #1a2327, -2px -1px #1a2327; }
+        .pill-disabled:active { transform: none; box-shadow: 0px 3px #1a2327, 0px -3px #1a2327, 3px 0px #1a2327, -3px 0px #1a2327, 1px 2px #1a2327, -1px 2px #1a2327, 1px -2px #1a2327, -1px -2px #1a2327, 2px 1px #1a2327, -2px 1px #1a2327, 2px -1px #1a2327, -2px -1px #1a2327; }
 
         /* Mensagens de status do GPS */
         .gps-status {
@@ -450,8 +362,8 @@
             z-index: 1000;
         }
 
-        /* Sistema de Notificações Retrô na Interface */
-        #retroNotificationModal {
+        /* Sistema de Notificações Retrô e Modal de Login */
+        #retroNotificationModal, #authScreen {
             position: absolute;
             top: 0;
             left: 0;
@@ -463,6 +375,12 @@
             align-items: center;
             z-index: 2000;
             padding: 20px;
+        }
+
+        /* O Modal de Autenticação tem z-index maior para cobrir tudo até logar */
+        #authScreen {
+            z-index: 3000;
+            display: flex; /* Visível por padrão antes de autenticar */
         }
 
         .retro-modal-box {
@@ -495,12 +413,27 @@
             word-break: break-all;
         }
 
+        .retro-input {
+            background: #0b1329;
+            color: #d1f7ff;
+            border: 2px solid #ffb75e;
+            padding: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            outline: none;
+            width: 100%;
+        }
+
+        .retro-input::placeholder {
+            color: #4f6475;
+        }
+
         .retro-modal-btn {
             background: #ff6b6b;
             color: #fff;
             font-family: 'Press Start 2P', monospace;
             font-size: 8px;
-            padding: 10px;
+            padding: 12px;
             border: 2px solid #8b0000;
             box-shadow: 2px 2px 0px #0b1329;
             cursor: pointer;
@@ -513,135 +446,54 @@
             box-shadow: 1px 1px 0px #0b1329;
         }
 
+        .btn-google {
+            background: #4285F4;
+            border-color: #0d47a1;
+        }
+
         /* RESPONSIVIDADE ESPECIAL PARA MOBILE */
         @media (max-width: 768px) {
-            body {
-                align-items: flex-start;
-                height: 100vh;
-                height: 100dvh;
-            }
-
-            .device-frame {
-                width: 100vw;
-                height: 100vh;
-                height: 100dvh;
-                max-width: none;
-                max-height: none;
-                border: none;
-                box-shadow: none;
-                padding: 6px;
-            }
-
-            .top-bar {
-                margin-bottom: 6px;
-            }
-
-            .status-box {
-                font-size: 8px;
-                padding: 6px 8px;
-            }
-
-            .side-toolbar {
-                left: 10px;
-                top: 55px;
-            }
-
-            .side-btn {
-                padding: 6px;
-                font-size: 7px;
-            }
-
-            .retro-zoom-control {
-                right: 8px;
-                bottom: 120px;
-            }
-
-            .zoom-btn {
-                width: 34px;
-                height: 34px;
-                font-size: 11px;
-            }
-
-            .spider-minimap {
-                width: 95px;
-                height: 95px;
-                right: 10px;
-                bottom: 10px;
-            }
-
-            .bottom-panel {
-                gap: 4px;
-                margin-top: 6px;
-            }
-
-            .avatar-section {
-                gap: 4px;
-            }
-
-            .avatar-box-top {
-                width: 36px;
-                height: 36px;
-                font-size: 14px;
-            }
-
-            .avatar-box-main {
-                width: 42px;
-                height: 52px;
-            }
-
-            .buttons-grid {
-                gap: 4px;
-            }
-
-            .pill-btn {
-                font-size: 5px;
-                padding: 6px 5px;
-                margin: 2px;
-                box-shadow:
-                    0px 2px black,
-                    0px -2px black,
-                    2px 0px black,
-                    -2px 0px black,
-                    1px 1px black,
-                    -1px 1px black,
-                    1px -1px black,
-                    -1px -1px black,
-                    0px 4px #00000038,
-                    2px 2px #00000038,
-                    -2px 2px #00000038,
-                    inset 0px 2px #ffffff36;
-            }
-
-            .pill-btn:active {
-                transform: translateY(2px);
-                box-shadow:
-                    0px 2px black,
-                    0px -2px black,
-                    2px 0px black,
-                    -2px 0px black,
-                    1px 1px black,
-                    -1px 1px black,
-                    1px -1px black,
-                    -1px -1px black,
-                    inset 0px 2px #ffffff36;
-            }
-
-            .gps-status {
-                font-size: 8px;
-                top: 6px;
-                right: 6px;
-            }
+            body { align-items: flex-start; height: 100vh; height: 100dvh; }
+            .device-frame { width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; border: none; box-shadow: none; padding: 6px; }
+            .top-bar { margin-bottom: 6px; }
+            .status-box { font-size: 8px; padding: 6px 8px; }
+            .side-toolbar { left: 10px; top: 55px; }
+            .side-btn { padding: 6px; font-size: 7px; }
+            .retro-zoom-control { right: 8px; bottom: 120px; }
+            .zoom-btn { width: 34px; height: 34px; font-size: 11px; }
+            .spider-minimap { width: 95px; height: 95px; right: 10px; bottom: 10px; }
+            .bottom-panel { gap: 4px; margin-top: 6px; }
+            .avatar-section { gap: 4px; }
+            .avatar-box-top { width: 36px; height: 36px; font-size: 14px; }
+            .avatar-box-main { width: 42px; height: 52px; }
+            .buttons-grid { gap: 4px; }
+            .pill-btn { font-size: 5px; padding: 6px 5px; margin: 2px; box-shadow: 0px 2px black, 0px -2px black, 2px 0px black, -2px 0px black, 1px 1px black, -1px 1px black, 1px -1px black, -1px -1px black, 0px 4px #00000038, 2px 2px #00000038, -2px 2px #00000038, inset 0px 2px #ffffff36; }
+            .pill-btn:active { transform: translateY(2px); box-shadow: 0px 2px black, 0px -2px black, 2px 0px black, -2px 0px black, 1px 1px black, -1px 1px black, 1px -1px black, -1px -1px black, inset 0px 2px #ffffff36; }
+            .gps-status { font-size: 8px; top: 6px; right: 6px; }
         }
     </style>
 </head>
 <body>
+
+    <!-- INTERFACE DE AUTENTICAÇÃO (LOGIN/CADASTRO) -->
+    <div id="authScreen">
+        <div class="retro-modal-box">
+            <div class="retro-modal-title">ACESSO RESTRITO</div>
+            <input type="email" id="emailInput" class="retro-input" placeholder="E-MAIL">
+            <input type="password" id="passwordInput" class="retro-input" placeholder="SENHA">
+            <button class="retro-modal-btn" onclick="loginEmail()">ENTRAR</button>
+            <button class="retro-modal-btn" onclick="registerEmail()" style="background: #27ae60; border-color: #0b381e;">CADASTRAR NOVA CONTA</button>
+            <div style="text-align: center; font-size: 10px; margin: 5px 0;">-- OU --</div>
+            <button class="retro-modal-btn btn-google" onclick="loginGoogle()">ENTRAR COM GOOGLE</button>
+        </div>
+    </div>
 
     <!-- INTERFACE PRINCIPAL -->
     <div class="device-frame">
         <!-- Barra Superior -->
         <div class="top-bar">
             <div class="icon-badge">🌐</div>
-            <div class="status-box" id="statusMessage">SISTEMA ATIVO - RASTREAMENTO DIRETO</div>
+            <div class="status-box" id="statusMessage">SISTEMA BLOQUEADO - AGUARDANDO LOGIN</div>
             <div class="icon-badge">🕷️</div>
         </div>
 
@@ -650,11 +502,12 @@
             <button class="side-btn">0</button>
             <button class="side-btn">S</button>
             <button class="side-btn">T</button>
+            <button class="side-btn btn-logout" onclick="logoutApp()" title="Sair da Conta">X</button>
         </div>
 
         <!-- Tela do Mapa Funcional (Leaflet) -->
         <div class="map-viewport">
-            <div class="gps-status" id="gpsStatus">GPS: Buscando sinal...</div>
+            <div class="gps-status" id="gpsStatus">GPS: Aguardando...</div>
             <div id="leafletMap"></div>
 
             <!-- Controles de Zoom Personalizados Retrô -->
@@ -663,10 +516,9 @@
                 <button class="zoom-btn" onclick="zoomOut()">-</button>
             </div>
 
-            <!-- Mini-mapa Teia de Aranha (Canto Direito Inferior) -->
+            <!-- Mini-mapa Teia de Aranha -->
             <div class="spider-minimap" id="spiderMinimap" onclick="centerOnMe()" title="Radar Teia de Aranha">
                 <svg class="spider-web-svg" viewBox="0 0 100 100">
-                    <!-- Linhas radiais -->
                     <line x1="50" y1="50" x2="50" y2="0" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="50" y2="100" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="0" y2="50" stroke="#1b3a57" stroke-width="0.8"/>
@@ -675,7 +527,6 @@
                     <line x1="50" y1="50" x2="85" y2="85" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="15" y2="85" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="85" y2="15" stroke="#1b3a57" stroke-width="0.8"/>
-                    <!-- Polígonos concêntricos simulando a teia exata da referência -->
                     <polygon points="50,40 58,42 60,50 58,58 50,60 42,58 40,50 42,42" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
                     <polygon points="50,28 68,32 72,50 68,68 50,72 32,68 28,50 32,32" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
                     <polygon points="50,15 78,22 85,50 78,78 50,85 22,78 15,50 22,22" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
@@ -688,26 +539,22 @@
 
         <!-- Painel Inferior com Avatares à Esquerda e Botões à Direita -->
         <div class="bottom-panel">
-            <!-- Avatares à Esquerda -->
             <div class="avatar-section">
                 <div class="avatar-box-top">🍅</div>
                 <div class="avatar-box-main">🦸‍♂️</div>
             </div>
 
-            <!-- Grade de Botões à Direita -->
             <div class="buttons-grid">
                 <!-- Linha 1 -->
                 <button class="pill-btn pill-green-dark" onclick="setAlias('A.1')">A.1</button>
                 <button class="pill-btn pill-green" onclick="setProf(1)">PROF 1</button>
                 <button class="pill-btn pill-orange" onclick="setTerrainMode()">TERRAIN</button>
                 <button class="pill-btn pill-orange" onclick="openChat()">CHAT</button>
-
                 <!-- Linha 2 -->
                 <button class="pill-btn pill-red" onclick="setAlias('A.2')">A.2</button>
                 <button class="pill-btn pill-green" onclick="setProf(2)">PROF 2</button>
                 <button class="pill-btn pill-disabled" onclick="toggleView3D()">3D VIEW</button>
                 <button class="pill-btn pill-orange" onclick="openArchive()">ARCHIVE</button>
-
                 <!-- Linha 3 -->
                 <button class="pill-btn pill-outline"></button>
                 <button class="pill-btn pill-green" onclick="setProf(3)">PROF 3</button>
@@ -733,69 +580,44 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // ==========================================
-        // CONFIGURAÇÃO DO FIREBASE (INSIRA SEUS DADOS)
+        // CONFIGURAÇÃO DO FIREBASE FORNECIDA
         // ==========================================
         const firebaseConfig = {
-            apiKey: "SUA_API_KEY_AQUI",
-            authDomain: "SEU_AUTH_DOMAIN_AQUI",
-            databaseURL: "SEU_DATABASE_URL_AQUI",
-            projectId: "SEU_PROJECT_ID_AQUI",
-            storageBucket: "SEU_STORAGE_BUCKET_AQUI",
-            messagingSenderId: "SUA_MESSAGING_SENDER_ID",
-            appId: "SUA_APP_ID"
+            apiKey: "AIzaSyCvTRvsTKEBjYiKxIKqDcTfjRFM_tzxYgw",
+            authDomain: "spider-track-6c9fd.firebaseapp.com",
+            projectId: "spider-track-6c9fd",
+            storageBucket: "spider-track-6c9fd.firebasestorage.app",
+            messagingSenderId: "307541745117",
+            appId: "1:307541745117:web:004ea4f66b35e6b2492a34"
         };
 
-        let db;
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getDatabase(app);
-        } catch (e) {
-            console.warn("Firebase não configurado. Executando em modo de simulação local.");
-        }
+        let db, auth;
+        let currentHeroUid = '';
+        let currentHeroName = '';
+        let trackingStarted = false;
 
-        const currentHeroUid = 'heroi_' + Math.random().toString(36).substring(2, 9);
-        const currentHeroName = 'Herói-' + Math.floor(Math.random() * 900 + 100);
-
-        document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName.toUpperCase()}`;
-
-        // Inicializa o Mapa Leaflet com coordenadas padrão otimizadas para toque mobile
+        // Inicializa o Mapa Leaflet com coordenadas padrão
         const map = L.map('leafletMap', {
-            zoomControl: false,
-            attributionControl: false,
-            tap: true,
-            dragging: true,
-            touchZoom: true,
-            scrollWheelZoom: true
+            zoomControl: false, attributionControl: false, tap: true, dragging: true, touchZoom: true, scrollWheelZoom: true
         }).setView([-23.55052, -46.633308], 14);
 
-        // Funções de Zoom globais para os botões estilizados
-        window.zoomIn = function() {
-            map.zoomIn();
-        }
-        window.zoomOut = function() {
-            map.zoomOut();
-        }
+        window.zoomIn = () => map.zoomIn();
+        window.zoomOut = () => map.zoomOut();
 
-        // Camada padrão (Escura / Retrô)
-        const darkTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-        });
-        darkTileLayer.addTo(map);
-
-        // Alternância de Camada de Terreno Real (Satélite / Esdark)
+        const darkTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
         let isTerrainActive = false;
+        
         window.setTerrainMode = function() {
             isTerrainActive = !isTerrainActive;
             if (isTerrainActive) {
                 map.removeLayer(darkTileLayer);
-                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    maxZoom: 19,
-                }).addTo(map);
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }).addTo(map);
                 showRetroModal("Modo Terrain (Satélite) ativado com sucesso!");
             } else {
-                location.reload(); // Restaura o mapa padrão do sistema
+                location.reload(); 
             }
         };
 
@@ -803,9 +625,75 @@
         let myCurrentLatLng = null;
         let allUsersData = {};
 
-        startRealtimeLocationTracking();
-        listenToAllUsersLocations();
+        // INICIALIZAÇÃO FIREBASE E AUTENTICAÇÃO
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getDatabase(app);
+            auth = getAuth(app);
+            const googleProvider = new GoogleAuthProvider();
 
+            // Monitorar Status de Autenticação
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // Usuário Logado
+                    document.getElementById('authScreen').style.display = 'none';
+                    currentHeroUid = user.uid;
+                    currentHeroName = user.displayName || user.email.split('@')[0] || 'Herói';
+                    document.getElementById('statusMessage').innerText = `IDENTIDADE: ${currentHeroName.toUpperCase()}`;
+                    
+                    if (!trackingStarted) {
+                        startRealtimeLocationTracking();
+                        listenToAllUsersLocations();
+                        trackingStarted = true;
+                    }
+                } else {
+                    // Usuário Deslogado
+                    document.getElementById('authScreen').style.display = 'flex';
+                    document.getElementById('statusMessage').innerText = 'SISTEMA BLOQUEADO';
+                    trackingStarted = false;
+                }
+            });
+
+            // Funções Globais de Autenticação
+            window.loginEmail = () => {
+                const email = document.getElementById('emailInput').value;
+                const pass = document.getElementById('passwordInput').value;
+                if(!email || !pass) return showRetroModal("Preencha e-mail e senha!");
+                signInWithEmailAndPassword(auth, email, pass).catch(e => showRetroModal("Erro no login: " + e.message));
+            };
+
+            window.registerEmail = () => {
+                const email = document.getElementById('emailInput').value;
+                const pass = document.getElementById('passwordInput').value;
+                if(!email || !pass) return showRetroModal("Preencha e-mail e senha para cadastro!");
+                createUserWithEmailAndPassword(auth, email, pass)
+                    .then(() => showRetroModal("Conta criada com sucesso!"))
+                    .catch(e => showRetroModal("Erro no cadastro: " + e.message));
+            };
+
+            window.loginGoogle = () => {
+                signInWithPopup(auth, googleProvider).catch(e => showRetroModal("Erro no Google: " + e.message));
+            };
+
+            window.logoutApp = () => {
+                signOut(auth).then(() => {
+                    showRetroModal("Desconectado do sistema com sucesso.");
+                    setTimeout(() => location.reload(), 1500);
+                });
+            };
+
+        } catch (e) {
+            console.warn("Erro ao configurar Firebase. Executando em modo de simulação local.");
+            // Modo Fallback sem Auth
+            document.getElementById('authScreen').style.display = 'none';
+            currentHeroUid = 'heroi_' + Math.random().toString(36).substring(2, 9);
+            currentHeroName = 'Herói-' + Math.floor(Math.random() * 900 + 100);
+            document.getElementById('statusMessage').innerText = `SIMULAÇÃO: ${currentHeroName.toUpperCase()}`;
+            startRealtimeLocationTracking();
+            listenToAllUsersLocations();
+        }
+
+        // FUNÇÕES DE RASTREAMENTO
         function startRealtimeLocationTracking() {
             const gpsStatus = document.getElementById('gpsStatus');
             if ("geolocation" in navigator) {
@@ -818,10 +706,7 @@
 
                         if (db) {
                             set(ref(db, 'locations/' + currentHeroUid), {
-                                name: currentHeroName,
-                                latitude: lat,
-                                longitude: lng,
-                                timestamp: Date.now()
+                                name: currentHeroName, latitude: lat, longitude: lng, timestamp: Date.now()
                             });
                         } else {
                             updateLocalMarkerSimulation(currentHeroUid, currentHeroName, lat, lng);
@@ -829,16 +714,11 @@
                     },
                     (error) => {
                         gpsStatus.innerText = "GPS: ERRO";
-                        console.error(error);
                         myCurrentLatLng = [-23.55052, -46.633308];
                         updateLocalMarkerSimulation(currentHeroUid, currentHeroName, -23.55052, -46.633308);
                     },
                     { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
                 );
-            } else {
-                gpsStatus.innerText = "GPS: INDISPONÍVEL";
-                myCurrentLatLng = [-23.55052, -46.633308];
-                updateLocalMarkerSimulation(currentHeroUid, currentHeroName, -23.55052, -46.633308);
             }
         }
 
@@ -868,14 +748,7 @@
                     <div class="marker-label">${name}</div>
                 </div>
             `;
-
-            const customIcon = L.divIcon({
-                className: 'custom-retro-marker',
-                html: iconHtml,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
-            });
-
+            const customIcon = L.divIcon({ className: 'custom-retro-marker', html: iconHtml, iconSize: [24, 24], iconAnchor: [12, 12] });
             const marker = L.marker([lat, lng], { icon: customIcon });
             markersLayer.addLayer(marker);
 
@@ -885,6 +758,7 @@
             }
         }
 
+        // SIMULADOR LOCAL
         const simulatedUsers = {};
         function updateLocalMarkerSimulation(uid, name, lat, lng) {
             simulatedUsers[uid] = { name, latitude: lat, longitude: lng };
@@ -915,11 +789,8 @@
                 if (uid === currentHeroUid) return;
                 const user = allUsersData[uid];
                 
-                const dLat = (user.latitude - myLat) * scaleFactor;
-                const dLng = (user.longitude - myLng) * scaleFactor;
-
-                let posX = 50 + dLng;
-                let posY = 50 - dLat;
+                let posX = 50 + ((user.longitude - myLng) * scaleFactor);
+                let posY = 50 - ((user.latitude - myLat) * scaleFactor);
 
                 posX = Math.max(8, Math.min(92, posX));
                 posY = Math.max(8, Math.min(92, posY));
@@ -943,7 +814,7 @@
         };
     </script>
 
-    <!-- Funções dos Botões Atualizadas com Notificações na Interface -->
+    <!-- Funções Auxiliares de Interface -->
     <script>
         function showRetroModal(message) {
             document.getElementById('retroModalText').innerText = message;
@@ -954,34 +825,20 @@
             document.getElementById('retroNotificationModal').style.display = 'none';
         }
 
-        function setAlias(alias) { 
-            showRetroModal(`Alias corporativo alterado para: ${alias}`); 
-        }
-
+        function setAlias(alias) { showRetroModal(`Alias corporativo alterado para: ${alias}`); }
         function setProf(profNum) { 
             let profileNames = { 1: "Operacional Tático", 2: "Furtivo / Invisível", 3: "Busca de Resgate" };
             showRetroModal(`Perfil de Rastreamento ${profNum} (${profileNames[profNum] || 'Padrão'}) ativado!`); 
         }
-
-        function toggleView3D() { 
-            showRetroModal("Visualização 3D desativada no momento."); 
-        }
-
-        function openChat() { 
-            showRetroModal("Canal de chat seguro aberto com a central de heróis."); 
-        }
-
-        function openArchive() { 
-            showRetroModal("Arquivos confidenciais de missões abertos."); 
-        }
-
+        function toggleView3D() { showRetroModal("Visualização 3D desativada no momento."); }
+        function openChat() { showRetroModal("Canal de chat seguro aberto com a central de heróis."); }
+        function openArchive() { showRetroModal("Arquivos confidenciais de missões abertos."); }
+        
         function shareLocation() { 
             if (navigator.clipboard && window.location.href) {
                 navigator.clipboard.writeText(window.location.href).then(() => {
                     showRetroModal("Link de rastreamento copiado para a área de transferência!");
-                }).catch(() => {
-                    showRetroModal("Link gerado: " + window.location.href);
-                });
+                }).catch(() => showRetroModal("Link gerado: " + window.location.href));
             } else {
                 showRetroModal("Link gerado com sucesso para compartilhamento.");
             }
