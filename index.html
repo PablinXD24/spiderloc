@@ -174,7 +174,7 @@
         .retro-zoom-control {
             position: absolute;
             right: 12px;
-            bottom: 120px;
+            bottom: 130px;
             display: flex;
             flex-direction: column;
             gap: 6px;
@@ -201,7 +201,7 @@
             box-shadow: 1px 1px 0px #213865;
         }
 
-        /* Painel de Controle Inferior: Alinhado à direita com os avatares à esquerda */
+        /* Painel de Controle Inferior */
         .bottom-panel {
             margin-top: 10px;
             display: flex;
@@ -210,7 +210,7 @@
             gap: 8px;
         }
 
-        /* Bloco dos Avatares à Esquerda (como na referência) */
+        /* Bloco dos Avatares à Esquerda */
         .avatar-section {
             display: flex;
             flex-direction: column;
@@ -246,7 +246,7 @@
             position: relative;
         }
 
-        /* Grade de Botões Exata da Referência */
+        /* Grade de Botões */
         .buttons-grid {
             display: grid;
             grid-template-columns: repeat(4, auto);
@@ -255,68 +255,139 @@
             flex-grow: 1;
         }
 
-        /* Estilo pixelado rígido para simular as pílulas da referência */
+        /* ========================================================
+           ESTILO DE PIXEL COM CANTOS ARREDONDADOS/PIXEL SOZINHO NOS CANTOS
+           ======================================================== */
         .pill-btn {
             font-family: 'Press Start 2P', monospace;
             font-size: 7px;
-            padding: 7px 8px;
-            border-radius: 12px;
-            border: 3px solid #142a4a;
+            padding: 8px 10px;
+            margin: 3px;
+            shape-rendering: crispEdges;
+            border: 0;
             cursor: pointer;
             text-align: center;
             white-space: nowrap;
-            box-shadow: 2px 2px 0px #142a4a;
             letter-spacing: -0.5px;
+            box-shadow:
+                /* Eixo Y estrito e eixo X estrito */
+                0px 3px black,
+                0px -3px black,
+                3px 0px black,
+                -3px 0px black,
+                /* Pixel isolado nos cantos diagonais (entre eixo X e Y) */
+                1px 2px black,
+                -1px 2px black,
+                1px -2px black,
+                -1px -2px black,
+                2px 1px black,
+                -2px 1px black,
+                2px -1px black,
+                -2px -1px black,
+                /* Sombra externa suave retrô */
+                0px 6px #00000038,
+                3px 3px #00000038,
+                -3px 3px #00000038,
+                /* Brilho interno */
+                inset 0px 3px #ffffff36;
         }
 
         .pill-btn:active {
-            transform: translate(1px, 1px);
-            box-shadow: 1px 1px 0px #142a4a;
+            transform: translateY(3px);
+            box-shadow:
+                0px 3px black,
+                0px -3px black,
+                3px 0px black,
+                -3px 0px black,
+                1px 2px black,
+                -1px 2px black,
+                1px -2px black,
+                -1px -2px black,
+                2px 1px black,
+                -2px 1px black,
+                2px -1px black,
+                -2px -1px black,
+                inset 0px 3px #00000038;
         }
 
-        /* Cores exatas idênticas à referência */
+        /* Cores aplicadas ao estilo Pixel */
         .pill-green-dark {
-            background: #27ae60;
-            color: #ffffff;
-            border-color: #0b381e;
-            box-shadow: 2px 2px 0px #0b381e;
+            --color: #ffffff;
+            --bg-color: #27ae60;
+            color: var(--color);
+            background-color: var(--bg-color);
         }
 
         .pill-green {
-            background: #2ecc71;
-            color: #0b381e;
-            border-color: #0b381e;
-            box-shadow: 2px 2px 0px #0b381e;
+            --color: #0b381e;
+            --bg-color: #2ecc71;
+            color: var(--color);
+            background-color: var(--bg-color);
         }
 
         .pill-red {
-            background: #e74c3c;
-            color: #ffffff;
-            border-color: #641e16;
-            box-shadow: 2px 2px 0px #641e16;
+            --color: #ffffff;
+            --bg-color: #e74c3c;
+            color: var(--color);
+            background-color: var(--bg-color);
         }
 
         .pill-outline {
-            background: transparent;
-            color: transparent;
-            border-color: #213865;
-            box-shadow: 2px 2px 0px #142a4a;
+            --color: transparent;
+            --bg-color: transparent;
+            color: var(--color);
+            background-color: var(--bg-color);
+            box-shadow: none !important;
             cursor: default;
+            border: 0 !important;
+        }
+        .pill-outline:active {
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         .pill-orange {
-            background: #f39c12;
-            color: #3b2300;
-            border-color: #6e4405;
-            box-shadow: 2px 2px 0px #6e4405;
+            --color: #3b2300;
+            --bg-color: #f39c12;
+            color: var(--color);
+            background-color: var(--bg-color);
         }
 
         .pill-disabled {
-            background: #4f6475;
-            color: #b0bec5;
-            border-color: #263238;
-            box-shadow: 2px 2px 0px #263238;
+            --color: #b0bec5;
+            --bg-color: #4f6475;
+            color: var(--color);
+            background-color: var(--bg-color);
             cursor: not-allowed;
+            box-shadow:
+                0px 3px #1a2327,
+                0px -3px #1a2327,
+                3px 0px #1a2327,
+                -3px 0px #1a2327,
+                1px 2px #1a2327,
+                -1px 2px #1a2327,
+                1px -2px #1a2327,
+                -1px -2px #1a2327,
+                2px 1px #1a2327,
+                -2px 1px #1a2327,
+                2px -1px #1a2327,
+                -2px -1px #1a2327;
+        }
+        .pill-disabled:active {
+            transform: none;
+            box-shadow:
+                0px 3px #1a2327,
+                0px -3px #1a2327,
+                3px 0px #1a2327,
+                -3px 0px #1a2327,
+                1px 2px #1a2327,
+                -1px 2px #1a2327,
+                1px -2px #1a2327,
+                -1px -2px #1a2327,
+                2px 1px #1a2327,
+                -2px 1px #1a2327,
+                2px -1px #1a2327,
+                -2px -1px #1a2327;
         }
 
         /* Mensagens de status do GPS */
@@ -373,7 +444,7 @@
 
             .retro-zoom-control {
                 right: 8px;
-                bottom: 110px;
+                bottom: 120px;
             }
 
             .zoom-btn {
@@ -403,14 +474,40 @@
             }
 
             .buttons-grid {
-                gap: 3px;
+                gap: 4px;
             }
 
             .pill-btn {
-                font-size: 5.5px;
-                padding: 6px 4px;
-                border-width: 2px;
-                box-shadow: 1px 1px 0px #142a4a;
+                font-size: 5px;
+                padding: 6px 5px;
+                margin: 2px;
+                box-shadow:
+                    0px 2px black,
+                    0px -2px black,
+                    2px 0px black,
+                    -2px 0px black,
+                    1px 1px black,
+                    -1px 1px black,
+                    1px -1px black,
+                    -1px -1px black,
+                    0px 4px #00000038,
+                    2px 2px #00000038,
+                    -2px 2px #00000038,
+                    inset 0px 2px #ffffff36;
+            }
+
+            .pill-btn:active {
+                transform: translateY(2px);
+                box-shadow:
+                    0px 2px black,
+                    0px -2px black,
+                    2px 0px black,
+                    -2px 0px black,
+                    1px 1px black,
+                    -1px 1px black,
+                    1px -1px black,
+                    -1px -1px black,
+                    inset 0px 2px #ffffff36;
             }
 
             .gps-status {
@@ -451,7 +548,7 @@
             </div>
         </div>
 
-        <!-- Painel Inferior com Avatares à Esquerda e Botões à Direita Exatamente como a Referência -->
+        <!-- Painel Inferior com Avatares à Esquerda e Botões à Direita -->
         <div class="bottom-panel">
             <!-- Avatares à Esquerda -->
             <div class="avatar-section">
