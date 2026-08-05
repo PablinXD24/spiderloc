@@ -270,12 +270,10 @@
             white-space: nowrap;
             letter-spacing: -0.5px;
             box-shadow:
-                /* Eixo Y estrito e eixo X estrito */
                 0px 3px black,
                 0px -3px black,
                 3px 0px black,
                 -3px 0px black,
-                /* Pixel isolado nos cantos diagonais (entre eixo X e Y) */
                 1px 2px black,
                 -1px 2px black,
                 1px -2px black,
@@ -284,11 +282,9 @@
                 -2px 1px black,
                 2px -1px black,
                 -2px -1px black,
-                /* Sombra externa suave retrô */
                 0px 6px #00000038,
                 3px 3px #00000038,
                 -3px 3px #00000038,
-                /* Brilho interno */
                 inset 0px 3px #ffffff36;
         }
 
@@ -402,6 +398,69 @@
             border-radius: 4px;
             border: 1px solid #1b3a57;
             z-index: 1000;
+        }
+
+        /* Sistema de Notificações Retrô na Interface */
+        #retroNotificationModal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 19, 41, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .retro-modal-box {
+            background: #1b3a57;
+            border: 4px solid #ffb75e;
+            box-shadow: 6px 6px 0px #0b1329;
+            width: 100%;
+            max-width: 360px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .retro-modal-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: #ffb75e;
+            text-align: center;
+            border-bottom: 2px dashed #ffb75e;
+            padding-bottom: 8px;
+        }
+
+        .retro-modal-content {
+            font-size: 12px;
+            color: #d1f7ff;
+            text-align: center;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+
+        .retro-modal-btn {
+            background: #ff6b6b;
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            padding: 10px;
+            border: 2px solid #8b0000;
+            box-shadow: 2px 2px 0px #0b1329;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .retro-modal-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #0b1329;
         }
 
         /* RESPONSIVIDADE ESPECIAL PARA MOBILE */
@@ -579,6 +638,15 @@
         </div>
     </div>
 
+    <!-- Modal de Notificação Retrô integrado à interface -->
+    <div id="retroNotificationModal">
+        <div class="retro-modal-box">
+            <div class="retro-modal-title">TERMINAL NOTIFICAÇÃO</div>
+            <div class="retro-modal-content" id="retroModalText">Mensagem do sistema</div>
+            <button class="retro-modal-btn" onclick="closeRetroModal()">OK</button>
+        </div>
+    </div>
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
@@ -631,10 +699,27 @@
             map.zoomOut();
         }
 
-        // Adiciona a camada de mapa base (OpenStreetMap)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // Camada padrão (Escura / Retrô)
+        const darkTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-        }).addTo(map);
+        });
+        darkTileLayer.addTo(map);
+
+        // Alternância de Camada de Terreno Real (Satélite / Esdark)
+        let isTerrainActive = false;
+        window.setTerrainMode = function() {
+            isTerrainActive = !isTerrainActive;
+            if (isTerrainActive) {
+                map.removeLayer(darkTileLayer);
+                // Exemplo de camada de terreno/satélite alternativa funcional
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19,
+                }).addTo(map);
+                showRetroModal("Modo Terrain (Satélite) ativado com sucesso!");
+            } else {
+                location.reload(); // Restaura o mapa padrão do sistema
+            }
+        };
 
         const markersLayer = L.layerGroup().addTo(map);
         let myCurrentLatLng = null;
@@ -734,22 +819,57 @@
         window.centerOnMe = function() {
             if (myCurrentLatLng) {
                 map.setView(myCurrentLatLng, 16, { animate: true });
-                alert("Centralizando na sua localização exata.");
+                showRetroModal("Centralizando na sua localização exata.");
             } else {
-                alert("Aguardando sinal do GPS...");
+                showRetroModal("Aguardando sinal do GPS...");
             }
         };
     </script>
 
-    <!-- Funções dos Botões -->
+    <!-- Funções dos Botões Atualizadas com Notificações na Interface -->
     <script>
-        function setAlias(alias) { alert(`Alias ${alias} selecionado!`); }
-        function setProf(profNum) { alert(`Perfil ${profNum} selecionado!`); }
-        function setTerrainMode() { alert("Modo de Terreno ativado!"); }
-        function toggleView3D() { alert("Visualização 3D desativada no momento."); }
-        function openChat() { alert("Canal de chat aberto."); }
-        function openArchive() { alert("Arquivos abertos."); }
-        function shareLocation() { alert("Link copiado para compartilhamento!"); }
+        function showRetroModal(message) {
+            document.getElementById('retroModalText').innerText = message;
+            document.getElementById('retroNotificationModal').style.display = 'flex';
+        }
+
+        function closeRetroModal() {
+            document.getElementById('retroNotificationModal').style.display = 'none';
+        }
+
+        function setAlias(alias) { 
+            showRetroModal(`Alias corporativo alterado para: ${alias}`); 
+        }
+
+        function setProf(profNum) { 
+            let profileNames = { 1: "Operacional Tático", 2: "Furtivo / Invisível", 3: "Busca de Resgate" };
+            showRetroModal(`Perfil de Rastreamento ${profNum} (${profileNames[profNum] || 'Padrão'}) ativado!`); 
+        }
+
+        function toggleView3D() { 
+            showRetroModal("Visualização 3D desativada no momento."); 
+        }
+
+        function openChat() { 
+            showRetroModal("Canal de chat seguro aberto com a central de heróis."); 
+        }
+
+        function openArchive() { 
+            showRetroModal("Arquivos confidenciais de missões abertos."); 
+        }
+
+        function shareLocation() { 
+            if (navigator.clipboard && window.location.href) {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    showRetroModal("Link de rastreamento copiado para a área de transferência!");
+                }).catch(() => {
+                    showRetroModal("Link gerado: " + window.location.href);
+                });
+            } else {
+                showRetroModal("Link gerado com sucesso para compartilhamento.");
+            }
+        }
     </script>
 </body>
 </html>
+```[cite: 1]
