@@ -103,39 +103,9 @@
             height: 100%;
             background: #0b192c;
             z-index: 1;
+            transform-origin: center center;
+            transition: transform 0.05s linear;
         }
-
-        /* Camisa de Rosa dos Ventos / Direções (N, S, L, O) fixas no viewport girando de acordo com a rotação */
-        .compass-rose-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 999;
-            overflow: hidden;
-        }
-
-        .compass-indicator {
-            position: absolute;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 12px;
-            font-weight: bold;
-            padding: 4px 8px;
-            background: rgba(11, 19, 41, 0.8);
-            border: 2px solid #ffb75e;
-            color: #ffb75e;
-            border-radius: 4px;
-            box-shadow: 0 0 8px rgba(255, 183, 94, 0.5);
-            transform-origin: center;
-            transition: transform 0.1s linear;
-        }
-
-        #compN { top: 12px; left: 50%; transform: translateX(-50%); border-color: #ff4757; color: #ff4757; }
-        #compS { bottom: 12px; left: 50%; transform: translateX(-50%); }
-        #compL { right: 12px; top: 50%; transform: translateY(-50%); }
-        #compO { left: 12px; top: 50%; transform: translateY(-50%); }
 
         .leaflet-tile {
             filter: brightness(0.6) invert(1) contrast(1.5) hue-rotate(180deg) saturate(0.8) !important;
@@ -238,7 +208,7 @@
             box-shadow: 1px 1px 0px #213865;
         }
 
-        /* Mini-mapa Teia de Aranha Poligonal */
+        /* Mini-mapa Teia de Aranha Poligonal (Atuando como Bússola Exata) */
         .spider-minimap {
             position: absolute;
             right: 16px;
@@ -269,7 +239,32 @@
             top: 0;
             left: 0;
             pointer-events: none;
+            transition: transform 0.05s linear;
         }
+
+        .compass-letters-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            transition: transform 0.05s linear;
+        }
+
+        .compass-label {
+            position: absolute;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            font-weight: bold;
+            color: #ffb75e;
+            text-shadow: 0 0 3px #000;
+        }
+
+        .compass-label.north { top: 4px; left: 50%; transform: translateX(-50%); color: #ff4757; }
+        .compass-label.south { bottom: 4px; left: 50%; transform: translateX(-50%); }
+        .compass-label.east { right: 6px; top: 50%; transform: translateY(-50%); }
+        .compass-label.west { left: 6px; top: 50%; transform: translateY(-50%); }
 
         .spider-dot {
             position: absolute;
@@ -638,14 +633,6 @@
 
         <!-- Tela do Mapa Funcional (Leaflet) -->
         <div class="map-viewport">
-            <!-- Indicadores Cardinais Dinâmicos (Bússola) -->
-            <div class="compass-rose-container" id="compassContainer">
-                <div class="compass-indicator" id="compN">N</div>
-                <div class="compass-indicator" id="compS">S</div>
-                <div class="compass-indicator" id="compL">L</div>
-                <div class="compass-indicator" id="compO">O</div>
-            </div>
-
             <div class="gps-status" id="gpsStatus">GPS: Aguardando...</div>
             <div id="leafletMap"></div>
 
@@ -655,9 +642,9 @@
                 <button class="zoom-btn" onclick="zoomOut()">-</button>
             </div>
 
-            <!-- Mini-mapa Teia de Aranha -->
-            <div class="spider-minimap" id="spiderMinimap" onclick="centerOnMe()" title="Radar Teia de Aranha">
-                <svg class="spider-web-svg" viewBox="0 0 100 100">
+            <!-- Mini-mapa Teia de Aranha / Bússola Direcional Rotativa -->
+            <div class="spider-minimap" id="spiderMinimap" onclick="centerOnMe()" title="Radar Bússola Giroscópica">
+                <svg class="spider-web-svg" id="spiderWebSvg" viewBox="0 0 100 100">
                     <line x1="50" y1="50" x2="50" y2="0" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="50" y2="100" stroke="#1b3a57" stroke-width="0.8"/>
                     <line x1="50" y1="50" x2="0" y2="50" stroke="#1b3a57" stroke-width="0.8"/>
@@ -671,6 +658,12 @@
                     <polygon points="50,15 78,22 85,50 78,78 50,85 22,78 15,50 22,22" fill="none" stroke="#1b3a57" stroke-width="0.8"/>
                     <polygon points="50,2 90,10 98,50 90,90 50,98 10,90 2,50 10,10" fill="none" stroke="#21486c" stroke-width="1.2"/>
                 </svg>
+                <div class="compass-letters-container" id="compassLettersContainer">
+                    <span class="compass-label north">N</span>
+                    <span class="compass-label south">S</span>
+                    <span class="compass-label east">L</span>
+                    <span class="compass-label west">O</span>
+                </div>
                 <div class="spider-dot self-dot" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
             </div>
         </div>
@@ -742,40 +735,6 @@
             zoomControl: false, attributionControl: false, tap: true, dragging: true, touchZoom: true, scrollWheelZoom: true
         }).setView([0, 0], 2);
 
-        // Sistema de Giro de Bússola / Direção do Usuário
-        let userHeading = 0;
-
-        function updateCompassDisplay(heading) {
-            userHeading = heading || 0;
-            // Atualiza as letras cardinais para rodar de acordo com a direção em que o usuário está apontando
-            const compN = document.getElementById('compN');
-            const compS = document.getElementById('compS');
-            const compL = document.getElementById('compL');
-            const compO = document.getElementById('compO');
-
-            if (compN && compS && compL && compO) {
-                // Rotaciona as letras mantendo o layout da bússola fixa na direção correta
-                const rot = -userHeading;
-                compN.style.transform = `translateX(-50%) rotate(${userHeading}deg)`;
-                compS.style.transform = `translateX(-50%) rotate(${userHeading}deg)`;
-                compL.style.transform = `translateY(-50%) rotate(${userHeading}deg)`;
-                compO.style.transform = `translateY(-50%) rotate(${userHeading}deg)`;
-            }
-        }
-
-        // Tenta capturar a orientação do dispositivo (bússola física do celular)
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', (event) => {
-                let heading = event.alpha; // Direção da bússola em graus (0-360)
-                if (event.webkitCompassHeading) {
-                    heading = event.webkitCompassHeading; // Suporte específico para iOS
-                }
-                if (heading !== null && heading !== undefined) {
-                    updateCompassDisplay(heading);
-                }
-            }, true);
-        }
-
         window.zoomIn = () => map.zoomIn();
         window.zoomOut = () => map.zoomOut();
 
@@ -797,6 +756,36 @@
         let myCurrentLatLng = null;
         let allUsersData = {};
         let myConnections = {};
+
+        // Sincronização da rotação do mapa com a bússola estilo giroscópio (o mapa inteiro gira mantendo as letras direcionadas corretamente)
+        function updateMapOrientation(heading) {
+            const leafletPane = document.querySelector('#leafletMap .leaflet-map-pane');
+            const compassLetters = document.getElementById('compassLettersContainer');
+            const spiderSvg = document.getElementById('spiderWebSvg');
+            
+            if (leafletPane) {
+                leafletPane.style.transform = `rotate(${heading}deg)`;
+            }
+            if (compassLetters) {
+                compassLetters.style.transform = `rotate(${-heading}deg)`;
+            }
+            if (spiderSvg) {
+                spiderSvg.style.transform = `rotate(${-heading}deg)`;
+            }
+        }
+
+        // Tenta capturar orientação por DeviceOrientationEvent se disponível no dispositivo do usuário
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (event) => {
+                let compassHeading = event.alpha;
+                if (event.webkitCompassHeading !== undefined) {
+                    compassHeading = event.webkitCompassHeading; // iOS Safari
+                }
+                if (compassHeading !== null && !isNaN(compassHeading)) {
+                    updateMapOrientation(compassHeading);
+                }
+            }, true);
+        }
 
         try {
             const app = initializeApp(firebaseConfig);
@@ -886,7 +875,7 @@
             };
 
             window.registerEmail = () => {
-                const email = document.getElementById('emailInput'].value;
+                const email = document.getElementById('emailInput').value;
                 const pass = document.getElementById('passwordInput').value;
                 if(!email || !pass) return showRetroModal("Preencha e-mail e senha para cadastro!");
                 createUserWithEmailAndPassword(auth, email, pass)
@@ -1001,9 +990,6 @@
             startRealtimeLocationTracking();
         }
 
-        let lastLat = null;
-        let lastLng = null;
-
         function startRealtimeLocationTracking() {
             const gpsStatus = document.getElementById('gpsStatus');
             if ("geolocation" in navigator) {
@@ -1011,21 +997,14 @@
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
+                        const heading = position.coords.heading;
+                        
                         myCurrentLatLng = [lat, lng];
                         gpsStatus.innerText = `GPS: ATIVO`;
 
-                        // Calcula a direção do movimento se houver coordenadas anteriores (fallback para bússola via GPS)
-                        if (lastLat !== null && lastLng !== null) {
-                            const dLat = lat - lastLat;
-                            const dLng = lng - lastLng;
-                            if (Math.abs(dLat) > 0.00001 || Math.abs(dLng) > 0.00001) {
-                                let angle = Math.atan2(dLng, dLat) * (180 / Math.PI);
-                                if (angle < 0) angle += 360;
-                                updateCompassDisplay(angle);
-                            }
+                        if (heading !== null && !isNaN(heading)) {
+                            updateMapOrientation(heading);
                         }
-                        lastLat = lat;
-                        lastLng = lng;
 
                         if (!hasCenteredToMyLocation) {
                             map.setView([lat, lng], 16, { animate: false });
